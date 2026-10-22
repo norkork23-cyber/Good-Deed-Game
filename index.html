@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Good Deed Quest RPG</title>
+  <!-- LINE LIFF SDK -->
+  <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Prompt', -apple-system, sans-serif; }
+    body { background-color: #121826; color: #FFFFFF; padding: 16px; }
+    
+    /* Loading Overlay */
+    #loader { position: fixed; inset: 0; background: #121826; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 99; }
+    .spinner { border: 4px solid #334155; border-top: 4px solid #10B981; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    /* Player Status Card */
+    .hero-card { background: linear-gradient(135deg, #1E293B, #0F172A); border: 2px solid #334155; border-radius: 16px; padding: 16px; margin-bottom: 16px; }
+    .badge-level { background: #10B981; color: #fff; padding: 4px 10px; border-radius: 99px; font-size: 12px; font-weight: bold; display: inline-block; }
+    .hero-name { font-size: 20px; font-weight: bold; margin-top: 8px; }
+    .hero-title { font-size: 13px; color: #94A3B8; }
+    .stats-row { display: flex; gap: 12px; margin-top: 14px; }
+    .stat-box { flex: 1; background: #1E293B; border-radius: 10px; padding: 10px; text-align: center; border: 1px solid #334155; }
+    .stat-val { font-size: 18px; font-weight: bold; }
+    .stat-pts { color: #34D399; }
+    .stat-fire { color: #F87171; }
+
+    /* Boss Section */
+    .boss-card { background: linear-gradient(135deg, #3B0764, #1E1B4B); border: 2px solid #7E22CE; border-radius: 16px; padding: 16px; margin-bottom: 16px; }
+    .boss-header { display: flex; justify-content: space-between; align-items: center; }
+    .boss-hp-bar { background: #4C1D95; border-radius: 8px; height: 16px; overflow: hidden; margin-top: 10px; border: 1px solid #A855F7; }
+    .boss-hp-fill { background: linear-gradient(90deg, #EF4444, #F59E0B); height: 100%; width: 100%; transition: width 0.5s; }
+
+    /* Inventory Grid */
+    .inv-title { font-size: 16px; font-weight: bold; margin-bottom: 10px; }
+    .inventory-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .inv-slot { background: #1E293B; border-radius: 12px; border: 1px solid #334155; padding: 12px; text-align: center; position: relative; }
+    .inv-slot.Rare { border-color: #38BDF8; }
+    .inv-slot.Epic { border-color: #C084FC; }
+    .inv-slot.Legendary { border-color: #FBBF24; box-shadow: 0 0 10px rgba(251, 191, 36, 0.3); }
+    .inv-slot.Secret { border-color: #F43F5E; box-shadow: 0 0 12px rgba(244, 63, 94, 0.4); }
+    .item-qty { position: absolute; top: 6px; right: 8px; font-size: 11px; background: rgba(0,0,0,0.6); padding: 2px 6px; border-radius: 6px; }
+    .item-name { font-size: 12px; margin-top: 6px; word-break: break-word; }
+  </style>
+</head>
+<body>
+
+  <!-- Loading Screen -->
+  <div id="loader">
+    <div class="spinner"></div>
+    <p style="margin-top: 12px; font-size: 14px; color: #94A3B8;">กำลังเชื่อมต่อบัญชีเกม...</p>
+  </div>
+
+  <!-- Player Profile -->
+  <div class="hero-card">
+    <span class="badge-level" id="userLevel">Lv.1</span>
+    <div class="hero-name" id="userName">-</div>
+    <div class="hero-title" id="userTitle">-</div>
+    <div class="stats-row">
+      <div class="stat-box">
+        <div style="font-size: 11px; color: #94A3B8;">แต้มสะสม</div>
+        <div class="stat-val stat-pts" id="userPoints">0</div>
+      </div>
+      <div class="stat-box">
+        <div style="font-size: 11px; color: #94A3B8;">สถิติต่อเนื่อง</div>
+        <div class="stat-val stat-fire" id="userStreak">🔥 0 วัน</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Boss Section -->
+  <div class="boss-card">
+    <div class="boss-header">
+      <span style="font-size: 14px; font-weight: bold;" id="bossName">👹 World Boss</span>
+      <span style="font-size: 12px; color: #D8B4FE;" id="bossHpText">0 / 0 HP</span>
+    </div>
+    <div class="boss-hp-bar">
+      <div class="boss-hp-fill" id="bossHpFill" style="width: 100%;"></div>
+    </div>
+  </div>
+
+  <!-- Inventory -->
+  <div class="inv-title">🎒 คลังไอเทมสะสม</div>
+  <div class="inventory-grid" id="inventoryGrid"></div>
+
+  <script>
+    // 🔴 1. กำหนดค่า LIFF ID และ URL เว็บแอปของ Google Apps Script
+    const MY_LIFF_ID = "ใส่_LIFF_ID_จากขั้นตอนที่3";
+    const GAS_API_URL = "ใส่_WEB_APP_URL_จาก_Deploy_Apps_Script";
+
+    async function initApp() {
+      try {
+        await liff.init({ liffId: MY_LIFF_ID });
+
+        // ถ้ายังไม่ได้เปิดในแอป LINE ให้สั่งล็อกอิน
+        if (!liff.isLoggedIn()) {
+          liff.login();
+          return;
+        }
+
+        // ดึงโปรไฟล์ LINE ของผู้เล่น
+        const profile = await liff.getProfile();
+        document.getElementById("userName").innerText = profile.displayName;
+
+        // ดึงข้อมูลเกมจาก Google Apps Script
+        await loadGameData(profile.userId);
+        await loadBossData();
+
+        document.getElementById("loader").style.display = "none";
+      } catch (err) {
+        alert("เกิดข้อผิดพลาดในการโหลดเกม: " + err.message);
+      }
+    }
+
+    async function loadGameData(userId) {
+      const res = await fetch(`${GAS_API_URL}?action=getUserData&userId=${userId}`);
+      const data = await res.json();
+
+      if (data.status === "success") {
+        document.getElementById("userLevel").innerText = `Lv.${data.user.level}`;
+        document.getElementById("userTitle").innerText = `${data.user.badge} • ${data.user.school}`;
+        document.getElementById("userPoints").innerText = data.user.points;
+        document.getElementById("userStreak").innerText = `🔥 ${data.user.streak} วัน`;
+
+        // วาดช่องกระเป๋าไอเทม
+        const grid = document.getElementById("inventoryGrid");
+        grid.innerHTML = "";
+        if (data.inventory.length === 0) {
+          grid.innerHTML = "<p style='color:#64748B; font-size:12px; grid-column:span 3;'>ยังไม่มีไอเทม ส่งงานทำความดีเพื่อสะสมของรางวัลนะ!</p>";
+        } else {
+          data.inventory.forEach(item => {
+            const slot = document.createElement("div");
+            slot.className = `inv-slot ${item.rarity}`;
+            slot.innerHTML = `
+              <div class="item-qty">x${item.qty}</div>
+              <div style="font-size:24px;">📦</div>
+              <div class="item-name">${item.name}</div>
+            `;
+            grid.appendChild(slot);
+          });
+        }
+      }
+    }
+
+    async function loadBossData() {
+      const res = await fetch(`${GAS_API_URL}?action=getBossData`);
+      const data = await res.json();
+      if (data.status === "success") {
+        const b = data.boss;
+        document.getElementById("bossName").innerText = b.name;
+        document.getElementById("bossHpText").innerText = `${b.currentHp} / ${b.maxHp} HP`;
+        const percent = Math.max(0, Math.round((b.currentHp / b.maxHp) * 100));
+        document.getElementById("bossHpFill").style.width = `${percent}%`;
+      }
+    }
+
+    window.onload = initApp;
+  </script>
+</body>
+</html>
