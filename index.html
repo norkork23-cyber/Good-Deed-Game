@@ -5,13 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Good Deed Quest RPG</title>
 
-  <!-- 🟢 โหลด LINE LIFF SDK ลำดับแรกสุดเสมอเพื่อป้องกัน liff is not defined -->
-  <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <!-- 🟢 โหลด LINE LIFF SDK ลำดับแรกสุดเพื่อป้องกัน liff is not defined -->
+  <script charset="utf-8" src="[https://static.line-scdn.net/liff/edge/2/sdk.js](https://static.line-scdn.net/liff/edge/2/sdk.js)"></script>
 
   <!-- Google Fonts: Prompt -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="[https://fonts.googleapis.com](https://fonts.googleapis.com)">
+  <link rel="preconnect" href="[https://fonts.gstatic.com](https://fonts.gstatic.com)" crossorigin>
+  <link href="[https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap](https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap)" rel="stylesheet">
 
   <style>
     :root {
@@ -342,7 +342,7 @@
       <label style="font-size: 11px; color: var(--dim);">ถ่ายรูป / เลือกภาพหลักฐาน:</label>
       <input type="file" id="imageInput" accept="image/*" capture="environment">
 
-      <button class="btn-main" onclick="submitGoodDeed()">🚀 ส่งหลักฐานให้ AI ประเมินแต้ม</button>
+      <button class="btn-main" onclick="submitGoodDeed()">🚀 ส่งหลักฐานเพื่อรับแต้มและลดเลือดบอส</button>
     </div>
   </div>
 
@@ -387,91 +387,47 @@
     </div>
   </div>
 
+  <!-- Modal ลงทะเบียนสำหรับผู้เล่นใหม่ -->
+  <div id="registerModal" class="modal" style="display: none; z-index: 1000;">
+    <div class="modal-box">
+      <h3 style="font-size: 16px; font-weight: 700; color: #38BDF8; margin-bottom: 6px;">📝 ลงทะเบียนผู้กล้าคนใหม่</h3>
+      <p style="font-size: 12px; color: var(--dim); margin-bottom: 12px;">กรุณาเลือกโรงเรียนและระดับชั้นของน้องก่อนเริ่มเล่นเกมนะคะ</p>
+      
+      <label style="font-size: 12px; color: var(--dim);">🏫 โรงเรียน:</label>
+      <select id="regSchool">
+        <option value="โรงเรียนเทศบาล 1">โรงเรียนเทศบาล 1</option>
+        <option value="โรงเรียนบ้านบึง">โรงเรียนบ้านบึง</option>
+        <option value="โรงเรียนวัดดอน">โรงเรียนวัดดอน</option>
+      </select>
+
+      <label style="font-size: 12px; color: var(--dim);">📚 ระดับชั้น:</label>
+      <select id="regGrade">
+        <option value="ป.4">ประถมศึกษาปีที่ 4 (ป.4)</option>
+        <option value="ป.5">ประถมศึกษาปีที่ 5 (ป.5)</option>
+        <option value="ป.6">ประถมศึกษาปีที่ 6 (ป.6)</option>
+        <option value="ม.1">มัธยมศึกษาปีที่ 1 (ม.1)</option>
+        <option value="ม.2">มัธยมศึกษาปีที่ 2 (ม.2)</option>
+        <option value="ม.3">มัธยมศึกษาปีที่ 3 (ม.3)</option>
+      </select>
+
+      <button class="btn-main" onclick="submitRegistration()" style="margin-top: 10px;">ยืนยันข้อมูลและเริ่มเล่นเกม ✨</button>
+    </div>
+  </div>
+
   <script>
     // =========================================================================
     // ⚙️ 1. กำหนดค่า LIFF ID และ URL Apps Script
     // =========================================================================
-    // 🔴 นำ LIFF ID จริงของคุณมาวางแทนที่ตรงนี้ (เช่น "2001234567-AbCdEfGh")
     const MY_LIFF_ID = "2012153789-X3yDlaPl";
-
-    // 🔴 นำ URL Web App ของ Apps Script ที่ลงท้ายด้วย /exec มาวางตรงนี้
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzR3QDLt30e15PrVO3oftFbYZfVWBTCJ5smbnu4ykBotrw6cQhP0SzJzAVO5CtkaeeV/exec";
 
-    // Global App States
     let currentUserId = "DEMO_USER_001";
     let currentDisplayName = "ผู้กล้าแห่งความดี";
     let currentSchool = "ทั่วไป";
     let currentEquippedId = "";
     let myInventory = [];
     let selectedModalItem = null;
-// ==================== ฟังก์ชันโหลดข้อมูลทั้งหมด (refreshAllData) ====================
-    async function refreshAllData() {
-      try {
-        // ดึงข้อมูลทั้งหมดในคำขอเดียวเพื่อความเร็วสูงสุด
-        const res = await fetch(`${GAS_API_URL}?action=getInitialData&userId=${currentUserId}`);
-        const data = await res.json();
 
-        if (data.status === "success") {
-          // 1. อัปเดตข้อมูลโปรไฟล์ผู้เล่น
-          const u = data.user;
-          currentSchool = u.school;
-          currentEquippedId = u.equippedItem;
-
-          document.getElementById("uLevel").innerText = `Lv.${u.level}`;
-          document.getElementById("uBadge").innerText = u.badge;
-          document.getElementById("uSchool").innerText = `🏫 ${u.school}`;
-          document.getElementById("uPoints").innerText = `${u.points} แต้ม`;
-          document.getElementById("uStreak").innerText = `🔥 ${u.streak} วัน`;
-          document.getElementById("questTitle").innerText = u.currentQuest || "กำลังโหลดเควส...";
-          document.getElementById("questStatusText").innerText = u.questSubmitted ? "✅ ส่งเควสประจำสัปดาห์นี้แล้ว" : "⏳ ยังไม่ได้ส่งเควสสัปดาห์นี้";
-
-          // 2. อัปเดตคลังไอเทม
-          myInventory = data.inventory || [];
-          renderInventory();
-          populateTradeSelect();
-
-          // 3. อัปเดต World Boss
-          const b = data.boss;
-          if (b) {
-            document.getElementById("bossName").innerText = b.name;
-            document.getElementById("bossHpText").innerText = `${b.currentHp} / ${b.maxHp} HP`;
-            document.getElementById("bossDmgText").innerText = `ดาเมจรวม: ${b.totalDamage}`;
-            const pct = Math.max(0, Math.round((b.currentHp / b.maxHp) * 100));
-            document.getElementById("bossHpFill").style.width = `${pct}%`;
-            document.getElementById("bossPctText").innerText = `${pct}%`;
-          }
-
-          // 4. อัปเดตรายการตลาดแลกเปลี่ยน
-          renderTrades(data.trades || []);
-        }
-      } catch (err) {
-        console.error("refreshAllData Error:", err);
-      }
-    }
-
-    // ฟังก์ชันช่วยแสดงผลรายการห้องแลกเปลี่ยน
-    function renderTrades(trades) {
-      const c = document.getElementById("tradeList");
-      if (!c) return;
-      c.innerHTML = "";
-      if (trades.length === 0) {
-        c.innerHTML = "<p style='font-size:12px; color:var(--dim);'>ยังไม่มีใครเปิดห้องแลกของ</p>";
-        return;
-      }
-      trades.forEach(t => {
-        const isMe = t.senderId === currentUserId;
-        const b = document.createElement("div");
-        b.style = "background:#0F172A; border:1px solid var(--border); padding:10px; border-radius:10px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;";
-        b.innerHTML = `
-          <div>
-            <div style="font-size:13px; font-weight:700;">${t.senderItemName}</div>
-            <div style="font-size:11px; color:var(--dim);">รหัส: ${t.tradeCode}</div>
-          </div>
-          <div>${isMe ? '<span style="font-size:11px; color:var(--dim);">ห้องคุณ</span>' : `<button class="btn-main" style="padding:6px 12px; font-size:11px;" onclick="acceptTradePrompt('${t.tradeCode}', '${t.senderItemName}')">แลกของ</button>`}</div>
-        `;
-        c.appendChild(b);
-      });
-    }
     // =========================================================================
     // 🚀 2. การเริ่มต้นแอปและรอ SDK
     // =========================================================================
@@ -479,14 +435,12 @@
       const loader = document.getElementById("loader");
       const loaderText = document.getElementById("loaderText");
 
-      // ⏳ ตรวจสอบและวนรอจนกว่า SDK liff จะพร้อมทำงาน (แก้ปัญหา liff is not defined)
       let retryCount = 0;
       while (typeof liff === "undefined" && retryCount < 20) {
         await new Promise(resolve => setTimeout(resolve, 200));
         retryCount++;
       }
 
-      // หากเน็ตช้าจนโหลด SDK ไม่ทัน ให้สลับเข้า Mock Mode เพื่อไม่ให้หน้าจอค้าง
       if (typeof liff === "undefined") {
         console.warn("ไม่สามารถโหลด LINE SDK ได้ สลับเข้าสู่โหมดทดสอบ");
         await loadMockData();
@@ -495,7 +449,6 @@
       }
 
       try {
-        // หากเปิดทดสอบบน Browser คอมพิวเตอร์โดยยังไม่ได้ใส่ LIFF ID จริง
         if (MY_LIFF_ID.includes("ใส่_LIFF")) {
           console.warn("รันในโหมด Browser Test (Mock Data)");
           await loadMockData();
@@ -503,7 +456,6 @@
           return;
         }
 
-        // เริ่มต้นเชื่อมต่อ LINE LIFF
         await liff.init({ liffId: MY_LIFF_ID });
 
         if (!liff.isLoggedIn()) {
@@ -516,7 +468,6 @@
         currentDisplayName = profile.displayName;
         document.getElementById("uName").innerText = currentDisplayName;
 
-        // ดึงข้อมูลจริงจาก Apps Script
         await refreshAllData();
         loader.style.display = "none";
 
@@ -526,32 +477,25 @@
       }
     }
 
+    // =========================================================================
+    // ⚡ 3. ดึงและเรนเดอร์ข้อมูลแบบ Single Batch
+    // =========================================================================
     async function refreshAllData() {
-      await loadUserData();
-      await loadBossData();
-      await loadOpenTrades();
-    }
-
-    function switchTab(tabId, event) {
-      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-      document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
-      if (event && event.currentTarget) {
-        event.currentTarget.classList.add("active");
-      }
-      document.getElementById(tabId).classList.add("active");
-    }
-
-    // =========================================================================
-    // 📡 3. ฟังก์ชันดึงและเรนเดอร์ข้อมูล
-    // =========================================================================
-    async function loadUserData() {
       try {
-        const res = await fetch(`${GAS_API_URL}?action=getUserData&userId=${currentUserId}`);
+        const res = await fetch(`${GAS_API_URL}?action=getInitialData&userId=${currentUserId}`);
         const data = await res.json();
+
         if (data.status === "success") {
           const u = data.user;
           currentSchool = u.school;
           currentEquippedId = u.equippedItem;
+
+          // ตรวจสอบสถานะการลงทะเบียน
+          if (!u.isRegistered || !u.school || u.school === "ทั่วไป" || u.school === "-") {
+            document.getElementById("registerModal").style.display = "block";
+          } else {
+            document.getElementById("registerModal").style.display = "none";
+          }
 
           document.getElementById("uLevel").innerText = `Lv.${u.level}`;
           document.getElementById("uBadge").innerText = u.badge;
@@ -564,28 +508,31 @@
           myInventory = data.inventory || [];
           renderInventory();
           populateTradeSelect();
+
+          const b = data.boss;
+          if (b) {
+            document.getElementById("bossName").innerText = b.name;
+            document.getElementById("bossHpText").innerText = `${b.currentHp} / ${b.maxHp} HP`;
+            document.getElementById("bossDmgText").innerText = `ดาเมจรวม: ${b.totalDamage}`;
+            const pct = Math.max(0, Math.round((b.currentHp / b.maxHp) * 100));
+            document.getElementById("bossHpFill").style.width = `${pct}%`;
+            document.getElementById("bossPctText").innerText = `${pct}%`;
+          }
+
+          renderTrades(data.trades || []);
         }
-      } catch (e) {
-        console.error("loadUserData Error:", e);
+      } catch (err) {
+        console.error("refreshAllData Error:", err);
       }
     }
 
-    async function loadBossData() {
-      try {
-        const res = await fetch(`${GAS_API_URL}?action=getBossData`);
-        const data = await res.json();
-        if (data.status === "success") {
-          const b = data.boss;
-          document.getElementById("bossName").innerText = b.name;
-          document.getElementById("bossHpText").innerText = `${b.currentHp} / ${b.maxHp} HP`;
-          document.getElementById("bossDmgText").innerText = `ดาเมจรวม: ${b.totalDamage}`;
-          const pct = Math.max(0, Math.round((b.currentHp / b.maxHp) * 100));
-          document.getElementById("bossHpFill").style.width = `${pct}%`;
-          document.getElementById("bossPctText").innerText = `${pct}%`;
-        }
-      } catch (e) {
-        console.error("loadBossData Error:", e);
+    function switchTab(tabId, event) {
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+      if (event && event.currentTarget) {
+        event.currentTarget.classList.add("active");
       }
+      document.getElementById(tabId).classList.add("active");
     }
 
     function renderInventory() {
@@ -621,8 +568,65 @@
       });
     }
 
+    function renderTrades(trades) {
+      const c = document.getElementById("tradeList");
+      if (!c) return;
+      c.innerHTML = "";
+      if (trades.length === 0) {
+        c.innerHTML = "<p style='font-size:12px; color:var(--dim);'>ยังไม่มีใครเปิดห้องแลกของ</p>";
+        return;
+      }
+      trades.forEach(t => {
+        const isMe = t.senderId === currentUserId;
+        const b = document.createElement("div");
+        b.style = "background:#0F172A; border:1px solid var(--border); padding:10px; border-radius:10px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;";
+        b.innerHTML = `
+          <div>
+            <div style="font-size:13px; font-weight:700;">${t.senderItemName}</div>
+            <div style="font-size:11px; color:var(--dim);">รหัส: ${t.tradeCode}</div>
+          </div>
+          <div>${isMe ? '<span style="font-size:11px; color:var(--dim);">ห้องคุณ</span>' : `<button class="btn-main" style="padding:6px 12px; font-size:11px;" onclick="acceptTradePrompt('${t.tradeCode}', '${t.senderItemName}')">แลกของ</button>`}</div>
+        `;
+        c.appendChild(b);
+      });
+    }
+
     // =========================================================================
-    // 🎒 4. Item Actions (Equip / Sacrifice)
+    // 📝 4. ลงทะเบียนผู้ใช้ใหม่
+    // =========================================================================
+    async function submitRegistration() {
+      const school = document.getElementById("regSchool").value;
+      const grade = document.getElementById("regGrade").value;
+
+      document.getElementById("loader").style.display = "flex";
+      document.getElementById("loaderText").innerText = "กำลังบันทึกข้อมูลลงทะเบียน...";
+
+      try {
+        const res = await fetch(GAS_API_URL, {
+          method: "POST",
+          body: JSON.stringify({
+            action: "registerUser",
+            userId: currentUserId,
+            displayName: currentDisplayName,
+            school: school,
+            grade: grade
+          })
+        });
+        const result = await res.json();
+        if (result.status === "success") {
+          document.getElementById("registerModal").style.display = "none";
+          alert(`🎉 ลงทะเบียนสำเร็จ! ยินดีต้อนรับสู่ ${school}`);
+          await refreshAllData();
+        }
+      } catch (e) {
+        alert("ลงทะเบียนไม่สำเร็จ กรุณาลองใหม่อีกครั้ง");
+      } finally {
+        document.getElementById("loader").style.display = "none";
+      }
+    }
+
+    // =========================================================================
+    // 🎒 5. จัดการไอเทม (สวมใส่ / ปาใส่ Boss)
     // =========================================================================
     function openItemModal(item) {
       selectedModalItem = item;
@@ -643,7 +647,7 @@
           method: "POST",
           body: JSON.stringify({ action: "equipItem", userId: currentUserId, itemId: selectedModalItem.id })
         });
-        await loadUserData();
+        await refreshAllData();
         alert(`สวมใส่ [${selectedModalItem.name}] สำเร็จ!`);
       } catch (e) {
         alert("เกิดข้อผิดพลาดในการสวมใส่");
@@ -676,7 +680,7 @@
     }
 
     // =========================================================================
-    // 📸 5. Submit Good Deed / Quest via Base64 Image
+    // 📸 6. ส่งหลักฐานความดี / เควส
     // =========================================================================
     async function submitGoodDeed() {
       const isQuest = document.getElementById("submitType").value === "quest";
@@ -690,7 +694,7 @@
       const reader = new FileReader();
 
       document.getElementById("loader").style.display = "flex";
-      document.getElementById("loaderText").innerText = "กำลังอัปโหลดและให้ AI ตรวจสอบ...";
+      document.getElementById("loaderText").innerText = "กำลังอัปโหลดและส่งให้ AI ตรวจสอบ...";
 
       reader.onload = async function() {
         const base64Data = reader.result;
@@ -712,7 +716,7 @@
           document.getElementById("storyInput").value = "";
           fileInput.value = "";
           
-          let alertMsg = `🎉 ${result.message}\nหมวด: ${result.category}`;
+          let alertMsg = `🎉 ${result.message}`;
           if (result.droppedItem) alertMsg += `\n🎁 ได้รับของดรอป: [${result.droppedItem}] เข้ากระเป๋า!`;
           alert(alertMsg);
         } catch (e) {
@@ -725,7 +729,7 @@
     }
 
     // =========================================================================
-    // 🎁 6. Event Code & 🤝 Trade Hub
+    // 🎁 7. เติมโค้ดกิจกรรม & 🤝 ตลาดเทรดของ
     // =========================================================================
     async function submitEventCode() {
       const code = document.getElementById("eventCodeInput").value.trim();
@@ -738,7 +742,7 @@
           body: JSON.stringify({ action: "redeemCode", userId: currentUserId, displayName: currentDisplayName, code: code })
         });
         const data = await res.json();
-        await loadUserData();
+        await refreshAllData();
         if (data.status === "success") {
           document.getElementById("eventCodeInput").value = "";
           alert(`🎉 เติมสำเร็จ! ได้รับไอเทม [${data.itemName}] เข้ากระเป๋าแล้ว`);
@@ -765,34 +769,6 @@
         o.innerText = `${i.name} (มี x${i.qty})`;
         sel.appendChild(o);
       });
-    }
-
-    async function loadOpenTrades() {
-      try {
-        const res = await fetch(`${GAS_API_URL}?action=getOpenTrades`);
-        const data = await res.json();
-        const c = document.getElementById("tradeList");
-        c.innerHTML = "";
-        if (!data.trades || data.trades.length === 0) {
-          c.innerHTML = "<p style='font-size:12px; color:var(--dim);'>ยังไม่มีใครเปิดห้องแลกของ</p>";
-          return;
-        }
-        data.trades.forEach(t => {
-          const isMe = t.senderId === currentUserId;
-          const b = document.createElement("div");
-          b.style = "background:#0F172A; border:1px solid var(--border); padding:10px; border-radius:10px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;";
-          b.innerHTML = `
-            <div>
-              <div style="font-size:13px; font-weight:700;">${t.senderItemName}</div>
-              <div style="font-size:11px; color:var(--dim);">รหัส: ${t.tradeCode}</div>
-            </div>
-            <div>${isMe ? '<span style="font-size:11px; color:var(--dim);">ห้องคุณ</span>' : `<button class="btn-main" style="padding:6px 12px; font-size:11px;" onclick="acceptTradePrompt('${t.tradeCode}', '${t.senderItemName}')">แลกของ</button>`}</div>
-          `;
-          c.appendChild(b);
-        });
-      } catch (e) {
-        console.error("loadOpenTrades Error:", e);
-      }
     }
 
     async function createTradeRoom() {
@@ -839,7 +815,7 @@
     }
 
     // =========================================================================
-    // 🧪 7. Mock Data Mode สำหรับเปิดดูตัวอย่างบนคอมพิวเตอร์
+    // 🧪 8. Mock Mode สำหรับทดสอบบน Browser คอมพิวเตอร์
     // =========================================================================
     async function loadMockData() {
       document.getElementById("uName").innerText = "น้องผู้กล้า (Demo)";
@@ -867,7 +843,6 @@
       populateTradeSelect();
     }
 
-    // สั่งเริ่มต้นทำงานเมื่อหน้าเว็บโหลด
     window.onload = initApp;
   </script>
 </body>
