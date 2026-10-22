@@ -4,718 +4,475 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Good Deed Quest RPG</title>
-  <!-- Google Fonts: Prompt -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <!-- LINE LIFF SDK -->
-  <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <link rel="preconnect" href="[https://fonts.googleapis.com](https://fonts.googleapis.com)">
+  <link rel="preconnect" href="[https://fonts.gstatic.com](https://fonts.gstatic.com)" crossorigin>
+  <link href="[https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap](https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap)" rel="stylesheet">
+  <script charset="utf-8" src="[https://static.line-scdn.net/liff/edge/2/sdk.js](https://static.line-scdn.net/liff/edge/2/sdk.js)"></script>
 
   <style>
     :root {
-      --bg-main: #0B0F19;
-      --bg-card: #151D2F;
-      --bg-card-sub: #1E293B;
-      --border-color: #334155;
-      --text-white: #F8FAFC;
-      --text-dim: #94A3B8;
-      --accent-green: #10B981;
-      --accent-orange: #F97316;
-      --accent-purple: #8B5CF6;
-      --accent-blue: #38BDF8;
-      
-      /* Rarity Colors */
-      --rarity-common: #94A3B8;
-      --rarity-uncommon: #10B981;
-      --rarity-rare: #38BDF8;
-      --rarity-epic: #C084FC;
-      --rarity-legendary: #FBBF24;
-      --rarity-secret: #F43F5E;
+      --bg: #0B0F19; --card: #151D2F; --border: #334155; --text: #F8FAFC;
+      --dim: #94A3B8; --green: #10B981; --purple: #8B5CF6; --blue: #38BDF8;
     }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Prompt', sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background: var(--bg); color: var(--text); padding: 14px; padding-bottom: 70px; max-width: 480px; margin: 0 auto; }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Prompt', -apple-system, sans-serif;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    body {
-      background-color: var(--bg-main);
-      color: var(--text-white);
-      padding: 16px;
-      padding-bottom: 40px;
-      max-width: 480px;
-      margin: 0 auto;
-    }
-
-    /* Loader Overlay */
-    #loader {
-      position: fixed;
-      inset: 0;
-      background: var(--bg-main);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 999;
-      transition: opacity 0.3s ease;
-    }
-    .spinner {
-      border: 4px solid #1E293B;
-      border-top: 4px solid var(--accent-green);
-      border-radius: 50%;
-      width: 44px;
-      height: 44px;
-      animation: spin 0.8s linear infinite;
-    }
+    #loader { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 999; }
+    .spinner { border: 4px solid #1E293B; border-top: 4px solid var(--green); border-radius: 50%; width: 44px; height: 44px; animation: spin 0.8s linear infinite; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-    /* Profile / Hero Card */
-    .hero-card {
-      background: linear-gradient(135deg, #1E293B, #0F172A);
-      border: 1px solid var(--border-color);
-      border-radius: 18px;
-      padding: 16px;
-      margin-bottom: 14px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
-    }
-    .hero-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .badge-level {
-      background: linear-gradient(135deg, #059669, #10B981);
-      color: #fff;
-      padding: 4px 12px;
-      border-radius: 99px;
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-    }
-    .hero-name {
-      font-size: 20px;
-      font-weight: 700;
-      margin-top: 8px;
-    }
-    .hero-school {
-      font-size: 12px;
-      color: var(--text-dim);
-    }
+    /* Nav Tabs */
+    .tabs { display: flex; background: var(--card); padding: 4px; border-radius: 14px; margin-bottom: 14px; border: 1px solid var(--border); }
+    .tab-btn { flex: 1; padding: 10px 4px; background: none; border: none; color: var(--dim); font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 10px; }
+    .tab-btn.active { background: #1E293B; color: var(--green); border: 1px solid var(--border); }
 
-    /* Stats Grid */
-    .stats-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 14px;
-    }
-    .stat-box {
-      background: var(--bg-card);
-      border-radius: 12px;
-      padding: 10px 12px;
-      border: 1px solid rgba(255,255,255,0.05);
-    }
-    .stat-label {
-      font-size: 11px;
-      color: var(--text-dim);
-    }
-    .stat-val {
-      font-size: 18px;
-      font-weight: 700;
-      margin-top: 2px;
-    }
-    .stat-pts { color: #34D399; }
-    .stat-fire { color: #FB923C; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
 
-    /* World Boss Card */
-    .boss-card {
-      background: linear-gradient(135deg, #3B0764 0%, #1E1B4B 100%);
-      border: 1.5px solid #7E22CE;
-      border-radius: 18px;
-      padding: 16px;
-      margin-bottom: 16px;
-      box-shadow: 0 0 20px rgba(126, 34, 206, 0.25);
-    }
-    .boss-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .boss-tag {
-      font-size: 11px;
-      font-weight: 700;
-      color: #F43F5E;
-      background: rgba(244, 63, 94, 0.15);
-      padding: 2px 8px;
-      border-radius: 6px;
-    }
-    .boss-name {
-      font-size: 16px;
-      font-weight: 700;
-      margin-top: 4px;
-    }
-    .boss-hp-bar {
-      background: #31135E;
-      border-radius: 10px;
-      height: 16px;
-      overflow: hidden;
-      margin-top: 10px;
-      border: 1px solid rgba(168, 85, 247, 0.4);
-      position: relative;
-    }
-    .boss-hp-fill {
-      background: linear-gradient(90deg, #EF4444, #F59E0B);
-      height: 100%;
-      width: 100%;
-      transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .boss-hp-sub {
-      display: flex;
-      justify-content: space-between;
-      font-size: 11px;
-      color: #D8B4FE;
-      margin-top: 6px;
-    }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 14px; }
+    .title { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
 
-    /* Action Buttons */
-    .btn-action-hub {
-      display: grid;
-      grid-template-columns: 1fr;
-      margin-bottom: 18px;
-    }
-    .btn-trade {
-      background: linear-gradient(135deg, #6366F1, #8B5CF6);
-      border: none;
-      color: #fff;
-      font-weight: 600;
-      font-size: 14px;
-      padding: 13px;
-      border-radius: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      cursor: pointer;
-      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
-      transition: transform 0.1s active;
-    }
-    .btn-trade:active { transform: scale(0.98); }
+    /* Profile Card */
+    .hero-top { display: flex; justify-content: space-between; align-items: center; }
+    .badge { background: linear-gradient(135deg, #059669, #10B981); color: #fff; padding: 3px 10px; border-radius: 99px; font-size: 12px; font-weight: 700; }
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+    .stat-box { background: #0F172A; padding: 10px; border-radius: 10px; text-align: center; }
 
-    /* Inventory Section */
-    .sec-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-    }
-    .sec-title {
-      font-size: 16px;
-      font-weight: 600;
-    }
-    .sec-counter {
-      font-size: 12px;
-      color: var(--text-dim);
-    }
-    .inventory-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-    }
-    .inv-slot {
-      background: var(--bg-card);
-      border-radius: 14px;
-      padding: 12px 8px;
-      text-align: center;
-      border: 1.5px solid var(--border-color);
-      position: relative;
-      min-height: 96px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
-    .inv-slot.Common { border-color: var(--rarity-common); }
-    .inv-slot.Uncommon { border-color: var(--rarity-uncommon); }
-    .inv-slot.Rare { border-color: var(--rarity-rare); box-shadow: 0 0 8px rgba(56, 189, 248, 0.2); }
-    .inv-slot.Epic { border-color: var(--rarity-epic); box-shadow: 0 0 10px rgba(192, 132, 252, 0.3); }
-    .inv-slot.Legendary { border-color: var(--rarity-legendary); box-shadow: 0 0 12px rgba(251, 191, 36, 0.35); }
-    .inv-slot.Secret { border-color: var(--rarity-secret); box-shadow: 0 0 14px rgba(244, 63, 94, 0.45); }
-    
-    .item-qty {
-      position: absolute;
-      top: 6px;
-      right: 6px;
-      font-size: 10px;
-      font-weight: 700;
-      background: rgba(0,0,0,0.65);
-      padding: 1px 6px;
-      border-radius: 6px;
-      border: 1px solid rgba(255,255,255,0.1);
-    }
-    .item-icon { font-size: 26px; line-height: 1.2; margin-bottom: 4px; }
-    .item-name {
-      font-size: 11px;
-      font-weight: 500;
-      line-height: 1.3;
-      word-break: break-word;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
+    /* Boss */
+    .boss-box { background: linear-gradient(135deg, #3B0764, #1E1B4B); border: 1.5px solid #7E22CE; border-radius: 16px; padding: 14px; margin-bottom: 14px; }
+    .hp-bar { background: #31135E; height: 14px; border-radius: 8px; overflow: hidden; margin: 8px 0; border: 1px solid #A855F7; }
+    .hp-fill { background: linear-gradient(90deg, #EF4444, #F59E0B); height: 100%; width: 100%; transition: width 0.5s; }
 
-    /* Trade Modal */
-    #tradeModal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(11, 15, 25, 0.95);
-      backdrop-filter: blur(8px);
-      z-index: 200;
-      padding: 20px 16px;
-      overflow-y: auto;
-    }
-    .modal-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 18px;
-    }
-    .btn-close {
-      background: var(--bg-card-sub);
-      border: 1px solid var(--border-color);
-      color: #fff;
-      padding: 6px 14px;
-      border-radius: 10px;
-      font-size: 13px;
-      cursor: pointer;
-    }
-    .create-box {
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: 14px;
-      padding: 14px;
-      margin-bottom: 20px;
-    }
-    .trade-input {
-      width: 100%;
-      padding: 10px 12px;
-      background: #0F172A;
-      color: #fff;
-      border: 1px solid var(--border-color);
-      border-radius: 10px;
-      font-size: 13px;
-      margin-top: 8px;
-      margin-bottom: 12px;
-      outline: none;
-    }
-    .btn-submit-trade {
-      width: 100%;
-      background: var(--accent-green);
-      border: none;
-      color: #fff;
-      font-weight: 600;
-      padding: 11px;
-      border-radius: 10px;
-      font-size: 14px;
-      cursor: pointer;
-    }
-    .trade-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 12px 14px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-    .btn-accept {
-      background: #2563EB;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      padding: 6px 14px;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-    }
+    /* Forms */
+    input, textarea, select { width: 100%; padding: 10px 12px; background: #0F172A; border: 1px solid var(--border); border-radius: 10px; color: #fff; font-size: 13px; margin-bottom: 10px; outline: none; }
+    .btn-main { width: 100%; padding: 12px; background: var(--green); border: none; border-radius: 10px; color: #fff; font-weight: 600; cursor: pointer; }
+    .btn-purple { background: var(--purple); }
+
+    /* Inventory Grid */
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .slot { background: #0F172A; border: 1.5px solid var(--border); border-radius: 12px; padding: 10px 6px; text-align: center; position: relative; cursor: pointer; }
+    .slot.Rare { border-color: var(--blue); }
+    .slot.Epic { border-color: #C084FC; }
+    .slot.Legendary { border-color: #FBBF24; }
+    .slot.Secret { border-color: #F43F5E; }
+    .slot-qty { position: absolute; top: 4px; right: 4px; font-size: 10px; background: rgba(0,0,0,0.7); padding: 1px 5px; border-radius: 6px; }
+
+    /* Modal */
+    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(6px); z-index: 100; padding: 20px 14px; }
+    .modal-box { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px; max-height: 90vh; overflow-y: auto; }
   </style>
 </head>
 <body>
 
-  <!-- Loading Screen -->
   <div id="loader">
     <div class="spinner"></div>
-    <p style="margin-top: 14px; font-size: 13px; color: var(--text-dim);" id="loaderText">กำลังเชื่อมต่อบัญชีเกม...</p>
+    <p style="margin-top: 14px; font-size: 13px; color: var(--dim);" id="loaderText">กำลังเชื่อมต่อฐานข้อมูลเกม...</p>
   </div>
 
-  <!-- Player Status Card -->
-  <div class="hero-card">
-    <div class="hero-top">
-      <span class="badge-level" id="userLevel">Lv.1</span>
-      <span style="font-size: 12px; color: var(--text-dim);" id="userBadge">🌱 ต้นกล้าแห่งความดี</span>
-    </div>
-    <div class="hero-name" id="userName">-</div>
-    <div class="hero-school" id="userSchool">กำลังโหลดข้อมูล...</div>
+  <!-- Navigation Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('profileTab')">🎮 หน้าหลัก</button>
+    <button class="tab-btn" onclick="switchTab('questTab')">🎯 เควส/ส่งงาน</button>
+    <button class="tab-btn" onclick="switchTab('bagTab')">🎒 คลังเป้</button>
+    <button class="tab-btn" onclick="switchTab('tradeTab')">🤝 เทรดของ</button>
+  </div>
 
-    <div class="stats-row">
-      <div class="stat-box">
-        <div class="stat-label">แต้มสะสมสุทธิ</div>
-        <div class="stat-val stat-pts" id="userPoints">0</div>
+  <!-- TAB 1: PROFILE & BOSS -->
+  <div id="profileTab" class="tab-content active">
+    <div class="card">
+      <div class="hero-top">
+        <span class="badge" id="uLevel">Lv.1</span>
+        <span style="font-size: 11px; color: var(--dim);" id="uBadge">-</span>
       </div>
-      <div class="stat-box">
-        <div class="stat-label">สถิติต่อเนื่อง</div>
-        <div class="stat-val stat-fire" id="userStreak">🔥 0 วัน</div>
+      <div style="font-size: 18px; font-weight: 700; margin-top: 6px;" id="uName">-</div>
+      <div style="font-size: 12px; color: var(--dim);" id="uSchool">-</div>
+      <div style="font-size: 11px; color: #FBBF24; margin-top: 4px;" id="uEquip">🛡️ ไม่ได้สวมใส่อุปกรณ์</div>
+
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div style="font-size: 11px; color: var(--dim);">แต้มสะสมสุทธิ</div>
+          <div style="font-size: 16px; font-weight: 700; color: #34D399;" id="uPoints">0</div>
+        </div>
+        <div class="stat-box">
+          <div style="font-size: 11px; color: var(--dim);">สถิติต่อเนื่อง</div>
+          <div style="font-size: 16px; font-weight: 700; color: #FB923C;" id="uStreak">🔥 0 วัน</div>
+        </div>
       </div>
     </div>
+
+    <!-- Monthly Boss -->
+    <div class="boss-box">
+      <div style="display: flex; justify-content: space-between; font-size: 12px;">
+        <span style="font-weight: 700; color: #F43F5E;">👹 WORLD BOSS</span>
+        <span id="bossHpText">0 / 2000 HP</span>
+      </div>
+      <div class="hp-bar"><div class="hp-fill" id="bossHpFill"></div></div>
+      <div style="display: flex; justify-content: space-between; font-size: 11px; color: #D8B4FE;">
+        <span id="bossDmgText">ดาเมจรวม: 0</span>
+        <span id="bossPctText">100%</span>
+      </div>
+    </div>
+
+    <!-- Redeem Event Code -->
+    <div class="card">
+      <div class="title">🎁 เติมรหัสกิจกรรมพิเศษ (Event Code)</div>
+      <input type="text" id="eventCodeInput" placeholder="พิมพ์โค้ด เช่น SMART2026">
+      <button class="btn-main btn-purple" onclick="submitEventCode()">รับของรางวัล Limited</button>
+    </div>
   </div>
 
-  <!-- Monthly World Boss -->
-  <div class="boss-card">
-    <div class="boss-header">
-      <span class="boss-tag">WORLD BOSS</span>
-      <span style="font-size: 12px; color: #D8B4FE;" id="bossHpText">0 / 2000 HP</span>
+  <!-- TAB 2: QUEST & SUBMISSION -->
+  <div id="questTab" class="tab-content">
+    <!-- Weekly Quest -->
+    <div class="card" style="border-color: #8B5CF6;">
+      <div class="title" style="color: #C084FC;">🎯 เควสประจำสัปดาห์ (+50 แต้ม)</div>
+      <p style="font-size: 13px; line-height: 1.4; margin-bottom: 10px;" id="questTitle">กำลังโหลดเควส...</p>
+      <div id="questStatusText" style="font-size: 12px; color: var(--green); font-weight: 600;"></div>
     </div>
-    <div class="boss-name" id="bossName">👹 จอมมารขยะพลาสติก</div>
-    <div class="boss-hp-bar">
-      <div class="boss-hp-fill" id="bossHpFill" style="width: 100%;"></div>
-    </div>
-    <div class="boss-hp-sub">
-      <span id="bossDmgText">ดาเมจรวม: 0</span>
-      <span id="bossPctText">100%</span>
+
+    <!-- Form Submit -->
+    <div class="card">
+      <div class="title">📸 อัปโหลดหลักฐานทำความดี (AI ตรวจทันที)</div>
+      <label style="font-size: 11px; color: var(--dim);">เลือกโหมดการส่ง:</label>
+      <select id="submitType">
+        <option value="normal">🌟 ความดีทั่วไป (10-20 แต้ม)</option>
+        <option value="quest">🎯 ส่งการบ้านเควสสัปดาห์ (50 แต้ม)</option>
+      </select>
+
+      <label style="font-size: 11px; color: var(--dim);">พิมพ์เล่าความดีที่ทำ:</label>
+      <textarea id="storyInput" rows="2" placeholder="เช่น ช่วยคุณแม่ล้างจานและจัดระเบียบโต๊ะอาหาร..."></textarea>
+
+      <label style="font-size: 11px; color: var(--dim);">ถ่ายรูป / เลือกภาพหลักฐาน:</label>
+      <input type="file" id="imageInput" accept="image/*" capture="environment">
+
+      <button class="btn-main" onclick="submitGoodDeed()">🚀 ส่งหลักฐานให้ AI ประเมินแต้ม</button>
     </div>
   </div>
 
-  <!-- Hub Buttons -->
-  <div class="btn-action-hub">
-    <button class="btn-trade" onclick="openTradeModal()">
-      <span>🤝</span> ตลาดแลกเปลี่ยนไอเทม (Trade Hub)
-    </button>
+  <!-- TAB 3: INVENTORY (BAG) -->
+  <div id="bagTab" class="tab-content">
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <div class="title" style="margin-bottom:0;">🎒 คลังเป้สะสม</div>
+        <span style="font-size: 11px; color: var(--dim);" id="bagCount">0 ชิ้น</span>
+      </div>
+      <p style="font-size: 11px; color: var(--dim); margin-bottom: 12px;">แตะที่ไอเทมเพื่อ "สวมใส่รับบัฟ" หรือ "สละไอเทมปาใส่ Boss"</p>
+      <div class="grid" id="invGrid"></div>
+    </div>
   </div>
 
-  <!-- Inventory Grid Section -->
-  <div class="sec-header">
-    <div class="sec-title">🎒 คลังไอเทมสะสม</div>
-    <div class="sec-counter" id="itemCountText">0 ชิ้น</div>
+  <!-- TAB 4: TRADE HUB -->
+  <div id="tradeTab" class="tab-content">
+    <div class="card">
+      <div class="title">➕ เปิดห้องแลกเปลี่ยนใหม่</div>
+      <label style="font-size: 11px; color: var(--dim);">เลือกไอเทมของคุณที่จะนำไปเทรด:</label>
+      <select id="tradeMyItemSelect"></select>
+      <button class="btn-main" onclick="createTradeRoom()">สร้างห้องแลกเปลี่ยน</button>
+    </div>
+
+    <div class="card">
+      <div class="title">📋 ตลาดแลกเปลี่ยนของเพื่อนๆ</div>
+      <div id="tradeList"><p style="font-size: 12px; color: var(--dim);">กำลังโหลด...</p></div>
+    </div>
   </div>
-  <div class="inventory-grid" id="inventoryGrid"></div>
 
-  <!-- Trade Hub Modal -->
-  <div id="tradeModal">
-    <div class="modal-head">
-      <h3 style="font-size: 17px; font-weight: 600;">🤝 ตลาดแลกเปลี่ยนไอเทม</h3>
-      <button class="btn-close" onclick="closeTradeModal()">ปิด</button>
-    </div>
-
-    <!-- Create Trade Room -->
-    <div class="create-box">
-      <div style="font-size: 13px; font-weight: 600; color: var(--accent-blue);">➕ เปิดห้องแลกของใหม่</div>
-      <div style="font-size: 11px; color: var(--text-dim); margin-top: 2px;">เลือกไอเทมในกระเป๋าเพื่อสร้างรหัสแลกเปลี่ยน:</div>
-      <select class="trade-input" id="tradeSelect"></select>
-      <button class="btn-submit-trade" onclick="submitCreateTrade()">สร้างห้องแลกเปลี่ยน</button>
-    </div>
-
-    <!-- Open Trades List -->
-    <div style="font-size: 14px; font-weight: 600; margin-bottom: 10px;">📋 ห้องแลกเปลี่ยนที่เปิดอยู่</div>
-    <div id="tradeListContainer">
-      <p style="font-size: 12px; color: var(--text-dim);">กำลังโหลดรายการ...</p>
+  <!-- Item Action Modal -->
+  <div id="itemModal" class="modal">
+    <div class="modal-box">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <div style="font-size: 16px; font-weight: 700;" id="modalItemName">-</div>
+        <button onclick="closeModal()" style="background: none; border: none; color: #fff; font-size: 16px;">✕</button>
+      </div>
+      <p style="font-size: 12px; color: var(--dim); margin-bottom: 14px;" id="modalItemDesc">ระดับความหายาก: Common</p>
+      
+      <button class="btn-main" style="margin-bottom: 8px;" onclick="actionEquip()">🛡️ สวมใส่เป็นอุปกรณ์หลัก</button>
+      <button class="btn-main" style="background: #EF4444;" onclick="actionSacrifice()">💥 สละไอเทมปาใส่ World Boss</button>
     </div>
   </div>
 
   <script>
-    // =========================================================================
-    // ⚙️ 1. กำหนดค่า Configuration หลัก
-    // =========================================================================
-    // 🔴 นำ LIFF ID จริงของคุณมาวางแทนที่ตรงนี้ (เช่น "2001234567-AbCdEfGh")
-    const MY_LIFF_ID = "2012153789-X3yDlaPl"; 
+    // 🔴 1. ตั้งค่า LIFF ID และ Web App URL ของ Apps Script
+    const MY_LIFF_ID = "2007871276-8ZJ58GxA"; // ใส่ LIFF ID ของคุณ
+    const GAS_API_URL = "[https://script.google.com/macros/s/AKfycbzQ71p.../exec](https://script.google.com/macros/s/AKfycbzQ71p.../exec)"; // ใส่ URL ที่ลงท้าย /exec
 
-    // 🔴 นำ URL Web App ของ Apps Script ที่ลงท้ายด้วย /exec มาวางตรงนี้
-    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzR3QDLt30e15PrVO3oftFbYZfVWBTCJ5smbnu4ykBotrw6cQhP0SzJzAVO5CtkaeeV/exec";
-
-    // Global States
-    let currentUserId = "DEMO_USER_001";
+    let currentUserId = "DEMO_USER";
+    let currentDisplayName = "ผู้กล้า";
+    let currentSchool = "ทั่วไป";
+    let currentEquippedId = "";
     let myInventory = [];
+    let selectedModalItem = null;
 
-    // =========================================================================
-    // 🚀 2. การเริ่มต้นแอป (LIFF Init & Mock Mode)
-    // =========================================================================
     async function initApp() {
       const loader = document.getElementById("loader");
       try {
-        // หากเปิดบน Browser โดยยังไม่ได้ใส่ LIFF ID ให้รัน Mock Mode เพื่อทดสอบหน้าตาเว็บ
-        if (MY_LIFF_ID.includes("ใส่_LIFF_ID")) {
-          console.warn("รันในโหมด Browser Test (Mock Data)");
-          await loadMockData();
-          loader.style.display = "none";
-          return;
+        if (!MY_LIFF_ID.includes("ใส่_LIFF")) {
+          await liff.init({ liffId: MY_LIFF_ID });
+          if (!liff.isLoggedIn()) { liff.login(); return; }
+          const profile = await liff.getProfile();
+          currentUserId = profile.userId;
+          currentDisplayName = profile.displayName;
         }
 
-        await liff.init({ liffId: MY_LIFF_ID });
-
-        if (!liff.isLoggedIn()) {
-          liff.login();
-          return;
-        }
-
-        const profile = await liff.getProfile();
-        currentUserId = profile.userId;
-        document.getElementById("userName").innerText = profile.displayName;
-
-        // ดึงข้อมูลจริงจาก Apps Script
-        await loadUserData(currentUserId);
-        await loadBossData();
-
+        document.getElementById("uName").innerText = currentDisplayName;
+        await refreshAllData();
         loader.style.display = "none";
       } catch (err) {
-        console.error("Init Error:", err);
-        document.getElementById("loaderText").innerText = "เกิดข้อผิดพลาด: " + err.message;
+        document.getElementById("loaderText").innerText = "เชื่อมต่อล้มเหลว: " + err.message;
       }
     }
 
-    // =========================================================================
-    // 📡 3. ฟังก์ชันดึงข้อมูลจาก Google Apps Script API
-    // =========================================================================
-    async function loadUserData(userId) {
-      try {
-        const res = await fetch(`${GAS_API_URL}?action=getUserData&userId=${userId}`);
-        const data = await res.json();
+    async function refreshAllData() {
+      await loadUserData();
+      await loadBossData();
+      await loadOpenTrades();
+    }
 
-        if (data.status === "success") {
-          const u = data.user;
-          document.getElementById("userLevel").innerText = `Lv.${u.level}`;
-          document.getElementById("userBadge").innerText = u.badge;
-          document.getElementById("userSchool").innerText = `🏫 ${u.school || "ไม่ระบุโรงเรียน"}`;
-          document.getElementById("userPoints").innerText = `${u.points} แต้ม`;
-          document.getElementById("userStreak").innerText = `🔥 ${u.streak} วัน`;
+    function switchTab(tabId) {
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+      event.target.classList.add("active");
+      document.getElementById(tabId).classList.add("active");
+    }
 
-          myInventory = data.inventory || [];
-          renderInventory(myInventory);
-        }
-      } catch (e) {
-        console.error("Failed to load user data:", e);
+    async function loadUserData() {
+      const res = await fetch(`${GAS_API_URL}?action=getUserData&userId=${currentUserId}`);
+      const data = await res.json();
+      if (data.status === "success") {
+        const u = data.user;
+        currentSchool = u.school;
+        currentEquippedId = u.equippedItem;
+
+        document.getElementById("uLevel").innerText = `Lv.${u.level}`;
+        document.getElementById("uBadge").innerText = u.badge;
+        document.getElementById("uSchool").innerText = `🏫 ${u.school}`;
+        document.getElementById("uPoints").innerText = `${u.points} แต้ม`;
+        document.getElementById("uStreak").innerText = `🔥 ${u.streak} วัน`;
+        document.getElementById("questTitle").innerText = u.currentQuest;
+        document.getElementById("questStatusText").innerText = u.questSubmitted ? "✅ ส่งเควสประจำสัปดาห์นี้แล้ว" : "⏳ ยังไม่ได้ส่งเควสสัปดาห์นี้";
+
+        myInventory = data.inventory || [];
+        renderInventory();
+        populateTradeSelect();
       }
     }
 
     async function loadBossData() {
-      try {
-        const res = await fetch(`${GAS_API_URL}?action=getBossData`);
-        const data = await res.json();
-
-        if (data.status === "success") {
-          const b = data.boss;
-          document.getElementById("bossName").innerText = b.name;
-          document.getElementById("bossHpText").innerText = `${b.currentHp} / ${b.maxHp} HP`;
-          
-          const pct = Math.max(0, Math.min(100, Math.round((b.currentHp / b.maxHp) * 100)));
-          document.getElementById("bossHpFill").style.width = `${pct}%`;
-          document.getElementById("bossDmgText").innerText = `ดาเมจสะสม: ${b.totalDamage || (b.maxHp - b.currentHp)}`;
-          document.getElementById("bossPctText").innerText = `${pct}%`;
-        }
-      } catch (e) {
-        console.error("Failed to load boss data:", e);
+      const res = await fetch(`${GAS_API_URL}?action=getBossData`);
+      const data = await res.json();
+      if (data.status === "success") {
+        const b = data.boss;
+        document.getElementById("bossHpText").innerText = `${b.currentHp} / ${b.maxHp} HP`;
+        document.getElementById("bossDmgText").innerText = `ดาเมจรวม: ${b.totalDamage}`;
+        const pct = Math.max(0, Math.round((b.currentHp / b.maxHp) * 100));
+        document.getElementById("bossHpFill").style.width = `${pct}%`;
+        document.getElementById("bossPctText").innerText = `${pct}%`;
       }
     }
 
-    // =========================================================================
-    // 🎨 4. Render Interface (Inventory & Trades)
-    // =========================================================================
-    function renderInventory(items) {
-      const grid = document.getElementById("inventoryGrid");
+    function renderInventory() {
+      const grid = document.getElementById("invGrid");
       grid.innerHTML = "";
+      let count = 0;
+      myInventory.forEach(i => count += i.qty);
+      document.getElementById("bagCount").innerText = `${count} ชิ้น`;
 
-      let totalQty = 0;
-      items.forEach(i => totalQty += i.qty);
-      document.getElementById("itemCountText").innerText = `${totalQty} ชิ้น`;
+      const eq = myInventory.find(i => i.id === currentEquippedId);
+      document.getElementById("uEquip").innerText = eq ? `🛡️ สวมใส่: ${eq.name}` : "🛡️ ไม่ได้สวมใส่อุปกรณ์";
 
-      if (items.length === 0) {
-        grid.innerHTML = `
-          <div style="grid-column: span 3; text-align: center; padding: 30px 10px; color: var(--text-dim); font-size: 12px; background: var(--bg-card); border-radius: 14px; border: 1px dashed var(--border-color);">
-            🎒 ยังไม่มีไอเทมสะสมในกระเป๋า<br>ส่งภาพ/คลิปความดีเพื่อลุ้นรับของดรอปนะ! ✨
-          </div>
-        `;
-        return;
-      }
-
-      items.forEach(item => {
-        const slot = document.createElement("div");
-        slot.className = `inv-slot ${item.rarity}`;
-
-        // แยกไอคอนอีโมจิตัวแรกออกจากชื่อ
-        const iconMatch = item.name.match(/^(\p{Emoji}|\p{Extended_Pictographic})/u);
-        const icon = iconMatch ? iconMatch[0] : "📦";
-        const cleanName = item.name.replace(icon, "").trim();
-
-        slot.innerHTML = `
-          <div class="item-qty">x${item.qty}</div>
-          <div class="item-icon">${icon}</div>
-          <div class="item-name">${cleanName || item.name}</div>
-        `;
-        grid.appendChild(slot);
-      });
-    }
-
-    // =========================================================================
-    // 🤝 5. ระบบตลาดเทรด (Trade Hub)
-    // =========================================================================
-    async function openTradeModal() {
-      document.getElementById("tradeModal").style.display = "block";
-      populateTradeSelect();
-      await fetchOpenTrades();
-    }
-
-    function closeTradeModal() {
-      document.getElementById("tradeModal").style.display = "none";
-    }
-
-    function populateTradeSelect() {
-      const sel = document.getElementById("tradeSelect");
-      sel.innerHTML = "";
       if (myInventory.length === 0) {
-        sel.innerHTML = "<option value=''>ไม่มีไอเทมสำหรับแลก</option>";
+        grid.innerHTML = "<p style='grid-column:span 3; font-size:12px; color:var(--dim); text-align:center; padding:20px;'>ไม่มีไอเทมในกระเป๋า</p>";
         return;
       }
+
       myInventory.forEach(item => {
-        const opt = document.createElement("option");
-        opt.value = item.id;
-        opt.innerText = `${item.name} (มี x${item.qty})`;
-        sel.appendChild(opt);
+        const d = document.createElement("div");
+        d.className = `slot ${item.rarity}`;
+        d.onclick = () => openItemModal(item);
+        d.innerHTML = `
+          <div class="slot-qty">x${item.qty}</div>
+          <div style="font-size:24px; margin:4px 0;">📦</div>
+          <div style="font-size:11px; line-height:1.2;">${item.name}</div>
+        `;
+        grid.appendChild(d);
       });
     }
 
-    async function fetchOpenTrades() {
-      const container = document.getElementById("tradeListContainer");
-      container.innerHTML = "<p style='font-size: 12px; color: var(--text-dim);'>กำลังค้นหาห้องแลกเปลี่ยน...</p>";
+    function openItemModal(item) {
+      selectedModalItem = item;
+      document.getElementById("modalItemName").innerText = item.name;
+      document.getElementById("modalItemDesc").innerText = `ระดับ: ${item.rarity} | มีทั้งหมด: x${item.qty} ชิ้น`;
+      document.getElementById("itemModal").style.display = "block";
+    }
 
-      try {
-        const res = await fetch(`${GAS_API_URL}?action=getOpenTrades`);
-        const data = await res.json();
+    function closeModal() { document.getElementById("itemModal").style.display = "none"; }
 
-        if (data.status === "success") {
-          container.innerHTML = "";
-          if (!data.trades || data.trades.length === 0) {
-            container.innerHTML = "<p style='font-size: 12px; color: #64748B;'>ยังไม่มีผู้เล่นเปิดห้องแลกของในขณะนี้</p>";
-            return;
-          }
+    async function actionEquip() {
+      closeModal();
+      document.getElementById("loader").style.display = "flex";
+      await fetch(GAS_API_URL, {
+        method: "POST",
+        body: JSON.stringify({ action: "equipItem", userId: currentUserId, itemId: selectedModalItem.id })
+      });
+      await loadUserData();
+      document.getElementById("loader").style.display = "none";
+      alert(`สวมใส่ [${selectedModalItem.name}] สำเร็จ!`);
+    }
 
-          data.trades.forEach(t => {
-            const isMe = t.senderId === currentUserId;
-            const box = document.createElement("div");
-            box.className = "trade-card";
-            box.innerHTML = `
-              <div>
-                <div style="font-size: 13px; font-weight: 600; color: #F8FAFC;">${t.senderItemName}</div>
-                <div style="font-size: 11px; color: var(--text-dim);">รหัส: <b style="color:var(--accent-blue)">${t.tradeCode}</b> ${isMe ? '(ห้องของคุณ)' : ''}</div>
-              </div>
-              <div>
-                ${isMe 
-                  ? `<span style="font-size: 11px; color: #94A3B8;">กำลังรอเพื่อน...</span>`
-                  : `<button class="btn-accept" onclick="acceptTrade('${t.tradeCode}', '${t.senderItemName}')">แลกของ</button>`
-                }
-              </div>
-            `;
-            container.appendChild(box);
+    async function actionSacrifice() {
+      if (!confirm(`ต้องการสละ [${selectedModalItem.name}] 1 ชิ้นเพื่อปาใส่ World Boss ใช่หรือไม่?`)) return;
+      closeModal();
+      document.getElementById("loader").style.display = "flex";
+      const res = await fetch(GAS_API_URL, {
+        method: "POST",
+        body: JSON.stringify({ action: "sacrificeItem", userId: currentUserId, displayName: currentDisplayName, itemId: selectedModalItem.id })
+      });
+      const data = await res.json();
+      await refreshAllData();
+      document.getElementById("loader").style.display = "none";
+      if (data.status === "success") {
+        alert(`💥 ปา [${data.itemName}] ใส่บอสสำเร็จ! สร้างความเสียหาย -${data.damageDealt} HP!`);
+      } else {
+        alert(data.message);
+      }
+    }
+
+    // Submit Good Deed via Base64 Image
+    async function submitGoodDeed() {
+      const isQuest = document.getElementById("submitType").value === "quest";
+      const story = document.getElementById("storyInput").value.trim();
+      const fileInput = document.getElementById("imageInput");
+
+      if (!story) return alert("กรุณาพิมพ์เล่าเรื่องความดีสั้นๆ ด้วยนะคะ");
+      if (fileInput.files.length === 0) return alert("กรุณาเลือกหรือถ่ายภาพหลักฐานด้วยนะคะ");
+
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+
+      document.getElementById("loader").style.display = "flex";
+      document.getElementById("loaderText").innerText = "กำลังอัปโหลดและให้ AI ตรวจสอบ...";
+
+      reader.onload = async function() {
+        const base64Data = reader.result;
+        try {
+          const res = await fetch(GAS_API_URL, {
+            method: "POST",
+            body: JSON.stringify({
+              action: "submitGoodDeed",
+              userId: currentUserId,
+              displayName: currentDisplayName,
+              school: currentSchool,
+              isQuest: isQuest,
+              story: story,
+              imageBase64: base64Data
+            })
           });
+          const result = await res.json();
+          await refreshAllData();
+          document.getElementById("storyInput").value = "";
+          fileInput.value = "";
+          
+          let alertMsg = `🎉 ${result.message}\nหมวด: ${result.category}`;
+          if (result.droppedItem) alertMsg += `\n🎁 ได้รับของดรอป: [${result.droppedItem}] เข้ากระเป๋า!`;
+          alert(alertMsg);
+        } catch (e) {
+          alert("ส่งข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง");
+        } finally {
+          document.getElementById("loader").style.display = "none";
         }
-      } catch (err) {
-        container.innerHTML = "<p style='font-size: 12px; color: #F43F5E;'>ไม่สามารถโหลดห้องแลกเปลี่ยนได้</p>";
-      }
+      };
+      reader.readAsDataURL(file);
     }
 
-    async function submitCreateTrade() {
-      const itemId = document.getElementById("tradeSelect").value;
-      if (!itemId) return alert("กรุณาเลือกไอเทมที่จะนำไปแลก");
+    // Event Code
+    async function submitEventCode() {
+      const code = document.getElementById("eventCodeInput").value.trim();
+      if (!code) return alert("กรุณาระบุรหัสโค้ด");
 
       document.getElementById("loader").style.display = "flex";
-      document.getElementById("loaderText").innerText = "กำลังสร้างห้องแลกเปลี่ยน...";
-
-      try {
-        const res = await fetch(GAS_API_URL, {
-          method: "POST",
-          body: JSON.stringify({ action: "createTrade", userId: currentUserId, itemId: itemId })
-        });
-        const result = await res.json();
-        if (result.status === "success") {
-          alert(`🎉 เปิดห้องแลกของสำเร็จ!\nรหัสของคุณ: ${result.tradeCode}`);
-          await fetchOpenTrades();
-          await loadUserData(currentUserId);
-        } else {
-          alert(result.message || "เกิดข้อผิดพลาด");
-        }
-      } catch (e) {
-        alert("ไม่สามารถสร้างห้องแลกเปลี่ยนได้ในขณะนี้");
-      } finally {
-        document.getElementById("loader").style.display = "none";
+      const res = await fetch(GAS_API_URL, {
+        method: "POST",
+        body: JSON.stringify({ action: "redeemCode", userId: currentUserId, displayName: currentDisplayName, code: code })
+      });
+      const data = await res.json();
+      await loadUserData();
+      document.getElementById("loader").style.display = "none";
+      if (data.status === "success") {
+        document.getElementById("eventCodeInput").value = "";
+        alert(`🎉 เติมสำเร็จ! ได้รับไอเทม [${data.itemName}] เข้ากระเป๋าแล้ว`);
+      } else {
+        alert(data.message);
       }
     }
 
-    async function acceptTrade(tradeCode, itemName) {
-      if (myInventory.length === 0) return alert("กระเป๋าของคุณไม่มีไอเทมสำหรับแลกเปลี่ยน");
-      
-      const counterItemName = prompt(`เพื่อนเสนอ: ${itemName}\n\nพิมพ์ "ชื่อไอเทมของคุณ" ที่ต้องการแลกตอบแทน:`);
-      if (!counterItemName) return;
+    // Trade System
+    function populateTradeSelect() {
+      const sel = document.getElementById("tradeMyItemSelect");
+      sel.innerHTML = "";
+      myInventory.forEach(i => {
+        const o = document.createElement("option");
+        o.value = i.id;
+        o.innerText = `${i.name} (มี x${i.qty})`;
+        sel.appendChild(o);
+      });
+    }
 
-      const myItem = myInventory.find(i => i.name.includes(counterItemName.trim()));
-      if (!myItem) return alert("ไม่พบไอเทมนี้ในกระเป๋าของคุณค่ะ");
+    async function loadOpenTrades() {
+      const res = await fetch(`${GAS_API_URL}?action=getOpenTrades`);
+      const data = await res.json();
+      const c = document.getElementById("tradeList");
+      c.innerHTML = "";
+      if (data.trades.length === 0) {
+        c.innerHTML = "<p style='font-size:12px; color:var(--dim);'>ยังไม่มีใครเปิดห้องแลกของ</p>";
+        return;
+      }
+      data.trades.forEach(t => {
+        const isMe = t.senderId === currentUserId;
+        const b = document.createElement("div");
+        b.style = "background:#0F172A; border:1px solid var(--border); padding:10px; border-radius:10px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;";
+        b.innerHTML = `
+          <div>
+            <div style="font-size:13px; font-weight:700;">${t.senderItemName}</div>
+            <div style="font-size:11px; color:var(--dim);">รหัส: ${t.tradeCode}</div>
+          </div>
+          <div>${isMe ? '<span style="font-size:11px; color:var(--dim);">ห้องคุณ</span>' : `<button class="btn-main" style="padding:6px 12px; font-size:11px;" onclick="acceptTradePrompt('${t.tradeCode}', '${t.senderItemName}')">แลกของ</button>`}</div>
+        `;
+        c.appendChild(b);
+      });
+    }
+
+    async function createTradeRoom() {
+      const itemId = document.getElementById("tradeMyItemSelect").value;
+      if (!itemId) return alert("กรุณาเลือกของในกระเป๋า");
+      document.getElementById("loader").style.display = "flex";
+      const res = await fetch(GAS_API_URL, {
+        method: "POST",
+        body: JSON.stringify({ action: "createTrade", userId: currentUserId, itemId: itemId })
+      });
+      const data = await res.json();
+      await refreshAllData();
+      document.getElementById("loader").style.display = "none";
+      alert(`เปิดห้องแลกเปลี่ยนสำเร็จ! รหัส ${data.tradeCode}`);
+    }
+
+    async function acceptTradePrompt(tCode, itemName) {
+      if (myInventory.length === 0) return alert("ไม่มีของสำหรับแลก");
+      const yourItemName = prompt(`เพื่อนเสนอ: ${itemName}\nพิมพ์ "ชื่อไอเทมของคุณ" ที่ต้องการมอบตอบแทน:`);
+      if (!yourItemName) return;
+      const myItem = myInventory.find(i => i.name.includes(yourItemName.trim()));
+      if (!myItem) return alert("ไม่พบไอเทมนี้ในกระเป๋า");
 
       document.getElementById("loader").style.display = "flex";
-      document.getElementById("loaderText").innerText = "กำลังดำเนินการแลกเปลี่ยน...";
-
-      try {
-        const res = await fetch(GAS_API_URL, {
-          method: "POST",
-          body: JSON.stringify({ 
-            action: "acceptTrade", 
-            userId: currentUserId, 
-            tradeCode: tradeCode, 
-            counterItemId: myItem.id 
-          })
-        });
-        const result = await res.json();
-        if (result.status === "success") {
-          alert(`🎉 แลกเปลี่ยนสำเร็จ!\nคุณได้รับ: ${result.receivedItem} เข้ากระเป๋าแล้ว`);
-          await fetchOpenTrades();
-          await loadUserData(currentUserId);
-        } else {
-          alert(result.message || "การแลกเปลี่ยนล้มเหลว");
-        }
-      } catch (e) {
-        alert("เกิดข้อผิดพลาดในการเชื่อมต่อ");
-      } finally {
-        document.getElementById("loader").style.display = "none";
-      }
+      const res = await fetch(GAS_API_URL, {
+        method: "POST",
+        body: JSON.stringify({ action: "acceptTrade", userId: currentUserId, tradeCode: tCode, counterItemId: myItem.id })
+      });
+      const data = await res.json();
+      await refreshAllData();
+      document.getElementById("loader").style.display = "none";
+      if (data.status === "success") alert(`แลกเปลี่ยนสำเร็จ! ได้รับ [${data.receivedItem}] เข้ากระเป๋าแล้ว`);
+      else alert(data.message);
     }
 
-    // =========================================================================
-    // 🧪 6. Mock Data Mode สำหรับเปิดดูตัวอย่างบน Browser คอมพิวเตอร์
-    // =========================================================================
-    async function loadMockData() {
-      document.getElementById("userName").innerText = "น้องผู้กล้า (Demo)";
-      document.getElementById("userLevel").innerText = "Lv.3";
-      document.getElementById("userBadge").innerText = "🛡️ อัศวินแห่งความดี";
-      document.getElementById("userSchool").innerText = "🏫 โรงเรียนเทศบาล 1";
-      document.getElementById("userPoints").innerText = "180 แต้ม";
-      document.getElementById("userStreak").innerText = "🔥 5 วัน";
-
-      document.getElementById("bossName").innerText = "👹 จอมมารขยะพลาสติก";
-      document.getElementById("bossHpText").innerText = "1,240 / 2,000 HP";
-      document.getElementById("bossHpFill").style.width = "62%";
-      document.getElementById("bossDmgText").innerText = "ดาเมจสะสม: 760";
-      document.getElementById("bossPctText").innerText = "62%";
-
-      myInventory = [
-        { id: "ITEM_01", name: "🍃 ใบไม้แห่งความเพียร", rarity: "Common", qty: 4 },
-        { id: "ITEM_07", name: "🌱 เมล็ดพันธุ์พิทักษ์โลก", rarity: "Uncommon", qty: 2 },
-        { id: "ITEM_12", name: "💎 คริสตัลจิตอาสา", rarity: "Rare", qty: 1 },
-        { id: "ITEM_16", name: "🔥 เปลวเพลิงแห่งสถิติ", rarity: "Epic", qty: 1 }
-      ];
-      renderInventory(myInventory);
-    }
-
-    // เริ่มต้นระบบเมื่อเปิดหน้าเว็บ
     window.onload = initApp;
   </script>
 </body>
