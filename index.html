@@ -1,70 +1,266 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Good Deed Quest RPG</title>
-  <link rel="preconnect" href="[https://fonts.googleapis.com](https://fonts.googleapis.com)">
-  <link rel="preconnect" href="[https://fonts.gstatic.com](https://fonts.gstatic.com)" crossorigin>
-  <link href="[https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap](https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap)" rel="stylesheet">
-  <script charset="utf-8" src="[https://static.line-scdn.net/liff/edge/2/sdk.js](https://static.line-scdn.net/liff/edge/2/sdk.js)"></script>
+
+  <!-- 🟢 โหลด LINE LIFF SDK ลำดับแรกสุดเสมอเพื่อป้องกัน liff is not defined -->
+  <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
+  <!-- Google Fonts: Prompt -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      --bg: #0B0F19; --card: #151D2F; --border: #334155; --text: #F8FAFC;
-      --dim: #94A3B8; --green: #10B981; --purple: #8B5CF6; --blue: #38BDF8;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Prompt', sans-serif; -webkit-tap-highlight-color: transparent; }
-    body { background: var(--bg); color: var(--text); padding: 14px; padding-bottom: 70px; max-width: 480px; margin: 0 auto; }
+      --bg: #0B0F19;
+      --card: #151D2F;
+      --card-sub: #1E293B;
+      --border: #334155;
+      --text: #F8FAFC;
+      --dim: #94A3B8;
+      --green: #10B981;
+      --purple: #8B5CF6;
+      --blue: #38BDF8;
+      --orange: #FB923C;
+      --red: #EF4444;
 
-    #loader { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 999; }
-    .spinner { border: 4px solid #1E293B; border-top: 4px solid var(--green); border-radius: 50%; width: 44px; height: 44px; animation: spin 0.8s linear infinite; }
+      /* Rarity Colors */
+      --rarity-common: #94A3B8;
+      --rarity-uncommon: #10B981;
+      --rarity-rare: #38BDF8;
+      --rarity-epic: #C084FC;
+      --rarity-legendary: #FBBF24;
+      --rarity-secret: #F43F5E;
+      --rarity-limited: #E91E63;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Prompt', -apple-system, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      padding: 14px;
+      padding-bottom: 70px;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    /* Loader */
+    #loader {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+      transition: opacity 0.3s ease;
+    }
+    .spinner {
+      border: 4px solid var(--card-sub);
+      border-top: 4px solid var(--green);
+      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      animation: spin 0.8s linear infinite;
+    }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-    /* Nav Tabs */
-    .tabs { display: flex; background: var(--card); padding: 4px; border-radius: 14px; margin-bottom: 14px; border: 1px solid var(--border); }
-    .tab-btn { flex: 1; padding: 10px 4px; background: none; border: none; color: var(--dim); font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 10px; }
-    .tab-btn.active { background: #1E293B; color: var(--green); border: 1px solid var(--border); }
+    /* Navigation Tabs */
+    .tabs {
+      display: flex;
+      background: var(--card);
+      padding: 4px;
+      border-radius: 14px;
+      margin-bottom: 14px;
+      border: 1px solid var(--border);
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 10px 4px;
+      background: none;
+      border: none;
+      color: var(--dim);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 10px;
+      transition: all 0.2s ease;
+    }
+    .tab-btn.active {
+      background: var(--card-sub);
+      color: var(--green);
+      border: 1px solid var(--border);
+    }
 
     .tab-content { display: none; }
     .tab-content.active { display: block; }
 
-    .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 14px; }
-    .title { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+    }
+    .title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
 
-    /* Profile Card */
-    .hero-top { display: flex; justify-content: space-between; align-items: center; }
-    .badge { background: linear-gradient(135deg, #059669, #10B981); color: #fff; padding: 3px 10px; border-radius: 99px; font-size: 12px; font-weight: 700; }
-    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
-    .stat-box { background: #0F172A; padding: 10px; border-radius: 10px; text-align: center; }
+    /* Hero Profile */
+    .hero-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .badge {
+      background: linear-gradient(135deg, #059669, #10B981);
+      color: #fff;
+      padding: 3px 10px;
+      border-radius: 99px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .stat-box {
+      background: #0F172A;
+      padding: 10px;
+      border-radius: 10px;
+      text-align: center;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
 
-    /* Boss */
-    .boss-box { background: linear-gradient(135deg, #3B0764, #1E1B4B); border: 1.5px solid #7E22CE; border-radius: 16px; padding: 14px; margin-bottom: 14px; }
-    .hp-bar { background: #31135E; height: 14px; border-radius: 8px; overflow: hidden; margin: 8px 0; border: 1px solid #A855F7; }
-    .hp-fill { background: linear-gradient(90deg, #EF4444, #F59E0B); height: 100%; width: 100%; transition: width 0.5s; }
+    /* World Boss Box */
+    .boss-box {
+      background: linear-gradient(135deg, #3B0764, #1E1B4B);
+      border: 1.5px solid #7E22CE;
+      border-radius: 16px;
+      padding: 14px;
+      margin-bottom: 14px;
+      box-shadow: 0 0 16px rgba(126, 34, 206, 0.25);
+    }
+    .hp-bar {
+      background: #31135E;
+      height: 14px;
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 8px 0;
+      border: 1px solid #A855F7;
+    }
+    .hp-fill {
+      background: linear-gradient(90deg, var(--red), var(--orange));
+      height: 100%;
+      width: 100%;
+      transition: width 0.5s ease;
+    }
 
     /* Forms */
-    input, textarea, select { width: 100%; padding: 10px 12px; background: #0F172A; border: 1px solid var(--border); border-radius: 10px; color: #fff; font-size: 13px; margin-bottom: 10px; outline: none; }
-    .btn-main { width: 100%; padding: 12px; background: var(--green); border: none; border-radius: 10px; color: #fff; font-weight: 600; cursor: pointer; }
+    input, textarea, select {
+      width: 100%;
+      padding: 10px 12px;
+      background: #0F172A;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 13px;
+      margin-top: 4px;
+      margin-bottom: 10px;
+      outline: none;
+    }
+    .btn-main {
+      width: 100%;
+      padding: 12px;
+      background: var(--green);
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .btn-main:active { opacity: 0.85; }
     .btn-purple { background: var(--purple); }
 
     /* Inventory Grid */
-    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-    .slot { background: #0F172A; border: 1.5px solid var(--border); border-radius: 12px; padding: 10px 6px; text-align: center; position: relative; cursor: pointer; }
-    .slot.Rare { border-color: var(--blue); }
-    .slot.Epic { border-color: #C084FC; }
-    .slot.Legendary { border-color: #FBBF24; }
-    .slot.Secret { border-color: #F43F5E; }
-    .slot-qty { position: absolute; top: 4px; right: 4px; font-size: 10px; background: rgba(0,0,0,0.7); padding: 1px 5px; border-radius: 6px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .slot {
+      background: #0F172A;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 6px;
+      text-align: center;
+      position: relative;
+      cursor: pointer;
+      min-height: 90px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    .slot.Common { border-color: var(--rarity-common); }
+    .slot.Uncommon { border-color: var(--rarity-uncommon); }
+    .slot.Rare { border-color: var(--rarity-rare); box-shadow: 0 0 8px rgba(56, 189, 248, 0.2); }
+    .slot.Epic { border-color: var(--rarity-epic); box-shadow: 0 0 10px rgba(192, 132, 252, 0.3); }
+    .slot.Legendary { border-color: var(--rarity-legendary); box-shadow: 0 0 12px rgba(251, 191, 36, 0.35); }
+    .slot.Secret { border-color: var(--rarity-secret); box-shadow: 0 0 14px rgba(244, 63, 94, 0.45); }
+    .slot.Limited { border-color: var(--rarity-limited); box-shadow: 0 0 12px rgba(233, 30, 99, 0.4); }
+
+    .slot-qty {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      font-size: 10px;
+      background: rgba(0,0,0,0.7);
+      padding: 1px 5px;
+      border-radius: 6px;
+    }
 
     /* Modal */
-    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(6px); z-index: 100; padding: 20px 14px; }
-    .modal-box { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px; max-height: 90vh; overflow-y: auto; }
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(6px);
+      z-index: 100;
+      padding: 20px 14px;
+    }
+    .modal-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
   </style>
 </head>
 <body>
 
+  <!-- Loading Screen -->
   <div id="loader">
     <div class="spinner"></div>
     <p style="margin-top: 14px; font-size: 13px; color: var(--dim);" id="loaderText">กำลังเชื่อมต่อฐานข้อมูลเกม...</p>
@@ -72,10 +268,10 @@
 
   <!-- Navigation Tabs -->
   <div class="tabs">
-    <button class="tab-btn active" onclick="switchTab('profileTab')">🎮 หน้าหลัก</button>
-    <button class="tab-btn" onclick="switchTab('questTab')">🎯 เควส/ส่งงาน</button>
-    <button class="tab-btn" onclick="switchTab('bagTab')">🎒 คลังเป้</button>
-    <button class="tab-btn" onclick="switchTab('tradeTab')">🤝 เทรดของ</button>
+    <button class="tab-btn active" onclick="switchTab('profileTab', event)">🎮 หน้าหลัก</button>
+    <button class="tab-btn" onclick="switchTab('questTab', event)">🎯 เควส/ส่งงาน</button>
+    <button class="tab-btn" onclick="switchTab('bagTab', event)">🎒 คลังเป้</button>
+    <button class="tab-btn" onclick="switchTab('tradeTab', event)">🤝 เทรดของ</button>
   </div>
 
   <!-- TAB 1: PROFILE & BOSS -->
@@ -96,15 +292,15 @@
         </div>
         <div class="stat-box">
           <div style="font-size: 11px; color: var(--dim);">สถิติต่อเนื่อง</div>
-          <div style="font-size: 16px; font-weight: 700; color: #FB923C;" id="uStreak">🔥 0 วัน</div>
+          <div style="font-size: 16px; font-weight: 700; color: var(--orange);" id="uStreak">🔥 0 วัน</div>
         </div>
       </div>
     </div>
 
-    <!-- Monthly Boss -->
+    <!-- Monthly World Boss -->
     <div class="boss-box">
       <div style="display: flex; justify-content: space-between; font-size: 12px;">
-        <span style="font-weight: 700; color: #F43F5E;">👹 WORLD BOSS</span>
+        <span style="font-weight: 700; color: #F43F5E;" id="bossName">👹 WORLD BOSS</span>
         <span id="bossHpText">0 / 2000 HP</span>
       </div>
       <div class="hp-bar"><div class="hp-fill" id="bossHpFill"></div></div>
@@ -124,10 +320,10 @@
 
   <!-- TAB 2: QUEST & SUBMISSION -->
   <div id="questTab" class="tab-content">
-    <!-- Weekly Quest -->
+    <!-- Weekly Quest Card -->
     <div class="card" style="border-color: #8B5CF6;">
       <div class="title" style="color: #C084FC;">🎯 เควสประจำสัปดาห์ (+50 แต้ม)</div>
-      <p style="font-size: 13px; line-height: 1.4; margin-bottom: 10px;" id="questTitle">กำลังโหลดเควส...</p>
+      <p style="font-size: 13px; line-height: 1.4; margin-bottom: 8px;" id="questTitle">กำลังโหลดเควส...</p>
       <div id="questStatusText" style="font-size: 12px; color: var(--green); font-weight: 600;"></div>
     </div>
 
@@ -157,7 +353,7 @@
         <div class="title" style="margin-bottom:0;">🎒 คลังเป้สะสม</div>
         <span style="font-size: 11px; color: var(--dim);" id="bagCount">0 ชิ้น</span>
       </div>
-      <p style="font-size: 11px; color: var(--dim); margin-bottom: 12px;">แตะที่ไอเทมเพื่อ "สวมใส่รับบัฟ" หรือ "สละไอเทมปาใส่ Boss"</p>
+      <p style="font-size: 11px; color: var(--dim); margin-bottom: 12px;">แตะที่ไอเทมเพื่อ "สวมใส่รับบัฟ" หรือ "สละไอเทมปาใส่ World Boss"</p>
       <div class="grid" id="invGrid"></div>
     </div>
   </div>
@@ -166,7 +362,7 @@
   <div id="tradeTab" class="tab-content">
     <div class="card">
       <div class="title">➕ เปิดห้องแลกเปลี่ยนใหม่</div>
-      <label style="font-size: 11px; color: var(--dim);">เลือกไอเทมของคุณที่จะนำไปเทรด:</label>
+      <label style="font-size: 11px; color: var(--dim);">เลือกไอเทมของคุณที่จะนำไปแลก:</label>
       <select id="tradeMyItemSelect"></select>
       <button class="btn-main" onclick="createTradeRoom()">สร้างห้องแลกเปลี่ยน</button>
     </div>
@@ -182,42 +378,84 @@
     <div class="modal-box">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
         <div style="font-size: 16px; font-weight: 700;" id="modalItemName">-</div>
-        <button onclick="closeModal()" style="background: none; border: none; color: #fff; font-size: 16px;">✕</button>
+        <button onclick="closeModal()" style="background: none; border: none; color: #fff; font-size: 16px; cursor: pointer;">✕</button>
       </div>
-      <p style="font-size: 12px; color: var(--dim); margin-bottom: 14px;" id="modalItemDesc">ระดับความหายาก: Common</p>
+      <p style="font-size: 12px; color: var(--dim); margin-bottom: 14px;" id="modalItemDesc">ระดับ: Common | มี x0 ชิ้น</p>
       
       <button class="btn-main" style="margin-bottom: 8px;" onclick="actionEquip()">🛡️ สวมใส่เป็นอุปกรณ์หลัก</button>
-      <button class="btn-main" style="background: #EF4444;" onclick="actionSacrifice()">💥 สละไอเทมปาใส่ World Boss</button>
+      <button class="btn-main" style="background: var(--red);" onclick="actionSacrifice()">💥 สละไอเทมปาใส่ World Boss</button>
     </div>
   </div>
 
-    // 🔴 1. ตั้งค่า LIFF ID และ Web App URL ของ Apps Script
-    const MY_LIFF_ID = "2012153789-X3yDlaPl"; // ใส่ LIFF ID ของคุณ
-    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzR3QDLt30e15PrVO3oftFbYZfVWBTCJ5smbnu4ykBotrw6cQhP0SzJzAVO5CtkaeeV/exec"; // ใส่ URL ที่ลงท้าย /exec
+  <script>
+    // =========================================================================
+    // ⚙️ 1. กำหนดค่า LIFF ID และ URL Apps Script
+    // =========================================================================
+    // 🔴 นำ LIFF ID จริงของคุณมาวางแทนที่ตรงนี้ (เช่น "2001234567-AbCdEfGh")
+    const MY_LIFF_ID = "2012153789-X3yDlaPl";
 
-    let currentUserId = "DEMO_USER";
-    let currentDisplayName = "ผู้กล้า";
+    // 🔴 นำ URL Web App ของ Apps Script ที่ลงท้ายด้วย /exec มาวางตรงนี้
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzR3QDLt30e15PrVO3oftFbYZfVWBTCJ5smbnu4ykBotrw6cQhP0SzJzAVO5CtkaeeV/exec";
+
+    // Global App States
+    let currentUserId = "DEMO_USER_001";
+    let currentDisplayName = "ผู้กล้าแห่งความดี";
     let currentSchool = "ทั่วไป";
     let currentEquippedId = "";
     let myInventory = [];
     let selectedModalItem = null;
 
+    // =========================================================================
+    // 🚀 2. การเริ่มต้นแอปและรอ SDK
+    // =========================================================================
     async function initApp() {
       const loader = document.getElementById("loader");
+      const loaderText = document.getElementById("loaderText");
+
+      // ⏳ ตรวจสอบและวนรอจนกว่า SDK liff จะพร้อมทำงาน (แก้ปัญหา liff is not defined)
+      let retryCount = 0;
+      while (typeof liff === "undefined" && retryCount < 20) {
+        await new Promise(resolve => setTimeout(resolve, 200));
+        retryCount++;
+      }
+
+      // หากเน็ตช้าจนโหลด SDK ไม่ทัน ให้สลับเข้า Mock Mode เพื่อไม่ให้หน้าจอค้าง
+      if (typeof liff === "undefined") {
+        console.warn("ไม่สามารถโหลด LINE SDK ได้ สลับเข้าสู่โหมดทดสอบ");
+        await loadMockData();
+        loader.style.display = "none";
+        return;
+      }
+
       try {
-        if (!MY_LIFF_ID.includes("ใส่_LIFF")) {
-          await liff.init({ liffId: MY_LIFF_ID });
-          if (!liff.isLoggedIn()) { liff.login(); return; }
-          const profile = await liff.getProfile();
-          currentUserId = profile.userId;
-          currentDisplayName = profile.displayName;
+        // หากเปิดทดสอบบน Browser คอมพิวเตอร์โดยยังไม่ได้ใส่ LIFF ID จริง
+        if (MY_LIFF_ID.includes("ใส่_LIFF")) {
+          console.warn("รันในโหมด Browser Test (Mock Data)");
+          await loadMockData();
+          loader.style.display = "none";
+          return;
         }
 
+        // เริ่มต้นเชื่อมต่อ LINE LIFF
+        await liff.init({ liffId: MY_LIFF_ID });
+
+        if (!liff.isLoggedIn()) {
+          liff.login();
+          return;
+        }
+
+        const profile = await liff.getProfile();
+        currentUserId = profile.userId;
+        currentDisplayName = profile.displayName;
         document.getElementById("uName").innerText = currentDisplayName;
+
+        // ดึงข้อมูลจริงจาก Apps Script
         await refreshAllData();
         loader.style.display = "none";
+
       } catch (err) {
-        document.getElementById("loaderText").innerText = "เชื่อมต่อล้มเหลว: " + err.message;
+        console.error("Init Error:", err);
+        loaderText.innerText = "เชื่อมต่อล้มเหลว: " + err.message;
       }
     }
 
@@ -227,253 +465,16 @@
       await loadOpenTrades();
     }
 
-    function switchTab(tabId) {
+    function switchTab(tabId, event) {
       document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
       document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
-      event.target.classList.add("active");
+      if (event && event.currentTarget) {
+        event.currentTarget.classList.add("active");
+      }
       document.getElementById(tabId).classList.add("active");
     }
 
-    async function loadUserData() {
-      const res = await fetch(`${GAS_API_URL}?action=getUserData&userId=${currentUserId}`);
-      const data = await res.json();
-      if (data.status === "success") {
-        const u = data.user;
-        currentSchool = u.school;
-        currentEquippedId = u.equippedItem;
-
-        document.getElementById("uLevel").innerText = `Lv.${u.level}`;
-        document.getElementById("uBadge").innerText = u.badge;
-        document.getElementById("uSchool").innerText = `🏫 ${u.school}`;
-        document.getElementById("uPoints").innerText = `${u.points} แต้ม`;
-        document.getElementById("uStreak").innerText = `🔥 ${u.streak} วัน`;
-        document.getElementById("questTitle").innerText = u.currentQuest;
-        document.getElementById("questStatusText").innerText = u.questSubmitted ? "✅ ส่งเควสประจำสัปดาห์นี้แล้ว" : "⏳ ยังไม่ได้ส่งเควสสัปดาห์นี้";
-
-        myInventory = data.inventory || [];
-        renderInventory();
-        populateTradeSelect();
-      }
-    }
-
-    async function loadBossData() {
-      const res = await fetch(`${GAS_API_URL}?action=getBossData`);
-      const data = await res.json();
-      if (data.status === "success") {
-        const b = data.boss;
-        document.getElementById("bossHpText").innerText = `${b.currentHp} / ${b.maxHp} HP`;
-        document.getElementById("bossDmgText").innerText = `ดาเมจรวม: ${b.totalDamage}`;
-        const pct = Math.max(0, Math.round((b.currentHp / b.maxHp) * 100));
-        document.getElementById("bossHpFill").style.width = `${pct}%`;
-        document.getElementById("bossPctText").innerText = `${pct}%`;
-      }
-    }
-
-    function renderInventory() {
-      const grid = document.getElementById("invGrid");
-      grid.innerHTML = "";
-      let count = 0;
-      myInventory.forEach(i => count += i.qty);
-      document.getElementById("bagCount").innerText = `${count} ชิ้น`;
-
-      const eq = myInventory.find(i => i.id === currentEquippedId);
-      document.getElementById("uEquip").innerText = eq ? `🛡️ สวมใส่: ${eq.name}` : "🛡️ ไม่ได้สวมใส่อุปกรณ์";
-
-      if (myInventory.length === 0) {
-        grid.innerHTML = "<p style='grid-column:span 3; font-size:12px; color:var(--dim); text-align:center; padding:20px;'>ไม่มีไอเทมในกระเป๋า</p>";
-        return;
-      }
-
-      myInventory.forEach(item => {
-        const d = document.createElement("div");
-        d.className = `slot ${item.rarity}`;
-        d.onclick = () => openItemModal(item);
-        d.innerHTML = `
-          <div class="slot-qty">x${item.qty}</div>
-          <div style="font-size:24px; margin:4px 0;">📦</div>
-          <div style="font-size:11px; line-height:1.2;">${item.name}</div>
-        `;
-        grid.appendChild(d);
-      });
-    }
-
-    function openItemModal(item) {
-      selectedModalItem = item;
-      document.getElementById("modalItemName").innerText = item.name;
-      document.getElementById("modalItemDesc").innerText = `ระดับ: ${item.rarity} | มีทั้งหมด: x${item.qty} ชิ้น`;
-      document.getElementById("itemModal").style.display = "block";
-    }
-
-    function closeModal() { document.getElementById("itemModal").style.display = "none"; }
-
-    async function actionEquip() {
-      closeModal();
-      document.getElementById("loader").style.display = "flex";
-      await fetch(GAS_API_URL, {
-        method: "POST",
-        body: JSON.stringify({ action: "equipItem", userId: currentUserId, itemId: selectedModalItem.id })
-      });
-      await loadUserData();
-      document.getElementById("loader").style.display = "none";
-      alert(`สวมใส่ [${selectedModalItem.name}] สำเร็จ!`);
-    }
-
-    async function actionSacrifice() {
-      if (!confirm(`ต้องการสละ [${selectedModalItem.name}] 1 ชิ้นเพื่อปาใส่ World Boss ใช่หรือไม่?`)) return;
-      closeModal();
-      document.getElementById("loader").style.display = "flex";
-      const res = await fetch(GAS_API_URL, {
-        method: "POST",
-        body: JSON.stringify({ action: "sacrificeItem", userId: currentUserId, displayName: currentDisplayName, itemId: selectedModalItem.id })
-      });
-      const data = await res.json();
-      await refreshAllData();
-      document.getElementById("loader").style.display = "none";
-      if (data.status === "success") {
-        alert(`💥 ปา [${data.itemName}] ใส่บอสสำเร็จ! สร้างความเสียหาย -${data.damageDealt} HP!`);
-      } else {
-        alert(data.message);
-      }
-    }
-
-    // Submit Good Deed via Base64 Image
-    async function submitGoodDeed() {
-      const isQuest = document.getElementById("submitType").value === "quest";
-      const story = document.getElementById("storyInput").value.trim();
-      const fileInput = document.getElementById("imageInput");
-
-      if (!story) return alert("กรุณาพิมพ์เล่าเรื่องความดีสั้นๆ ด้วยนะคะ");
-      if (fileInput.files.length === 0) return alert("กรุณาเลือกหรือถ่ายภาพหลักฐานด้วยนะคะ");
-
-      const file = fileInput.files[0];
-      const reader = new FileReader();
-
-      document.getElementById("loader").style.display = "flex";
-      document.getElementById("loaderText").innerText = "กำลังอัปโหลดและให้ AI ตรวจสอบ...";
-
-      reader.onload = async function() {
-        const base64Data = reader.result;
-        try {
-          const res = await fetch(GAS_API_URL, {
-            method: "POST",
-            body: JSON.stringify({
-              action: "submitGoodDeed",
-              userId: currentUserId,
-              displayName: currentDisplayName,
-              school: currentSchool,
-              isQuest: isQuest,
-              story: story,
-              imageBase64: base64Data
-            })
-          });
-          const result = await res.json();
-          await refreshAllData();
-          document.getElementById("storyInput").value = "";
-          fileInput.value = "";
-          
-          let alertMsg = `🎉 ${result.message}\nหมวด: ${result.category}`;
-          if (result.droppedItem) alertMsg += `\n🎁 ได้รับของดรอป: [${result.droppedItem}] เข้ากระเป๋า!`;
-          alert(alertMsg);
-        } catch (e) {
-          alert("ส่งข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง");
-        } finally {
-          document.getElementById("loader").style.display = "none";
-        }
-      };
-      reader.readAsDataURL(file);
-    }
-
-    // Event Code
-    async function submitEventCode() {
-      const code = document.getElementById("eventCodeInput").value.trim();
-      if (!code) return alert("กรุณาระบุรหัสโค้ด");
-
-      document.getElementById("loader").style.display = "flex";
-      const res = await fetch(GAS_API_URL, {
-        method: "POST",
-        body: JSON.stringify({ action: "redeemCode", userId: currentUserId, displayName: currentDisplayName, code: code })
-      });
-      const data = await res.json();
-      await loadUserData();
-      document.getElementById("loader").style.display = "none";
-      if (data.status === "success") {
-        document.getElementById("eventCodeInput").value = "";
-        alert(`🎉 เติมสำเร็จ! ได้รับไอเทม [${data.itemName}] เข้ากระเป๋าแล้ว`);
-      } else {
-        alert(data.message);
-      }
-    }
-
-    // Trade System
-    function populateTradeSelect() {
-      const sel = document.getElementById("tradeMyItemSelect");
-      sel.innerHTML = "";
-      myInventory.forEach(i => {
-        const o = document.createElement("option");
-        o.value = i.id;
-        o.innerText = `${i.name} (มี x${i.qty})`;
-        sel.appendChild(o);
-      });
-    }
-
-    async function loadOpenTrades() {
-      const res = await fetch(`${GAS_API_URL}?action=getOpenTrades`);
-      const data = await res.json();
-      const c = document.getElementById("tradeList");
-      c.innerHTML = "";
-      if (data.trades.length === 0) {
-        c.innerHTML = "<p style='font-size:12px; color:var(--dim);'>ยังไม่มีใครเปิดห้องแลกของ</p>";
-        return;
-      }
-      data.trades.forEach(t => {
-        const isMe = t.senderId === currentUserId;
-        const b = document.createElement("div");
-        b.style = "background:#0F172A; border:1px solid var(--border); padding:10px; border-radius:10px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;";
-        b.innerHTML = `
-          <div>
-            <div style="font-size:13px; font-weight:700;">${t.senderItemName}</div>
-            <div style="font-size:11px; color:var(--dim);">รหัส: ${t.tradeCode}</div>
-          </div>
-          <div>${isMe ? '<span style="font-size:11px; color:var(--dim);">ห้องคุณ</span>' : `<button class="btn-main" style="padding:6px 12px; font-size:11px;" onclick="acceptTradePrompt('${t.tradeCode}', '${t.senderItemName}')">แลกของ</button>`}</div>
-        `;
-        c.appendChild(b);
-      });
-    }
-
-    async function createTradeRoom() {
-      const itemId = document.getElementById("tradeMyItemSelect").value;
-      if (!itemId) return alert("กรุณาเลือกของในกระเป๋า");
-      document.getElementById("loader").style.display = "flex";
-      const res = await fetch(GAS_API_URL, {
-        method: "POST",
-        body: JSON.stringify({ action: "createTrade", userId: currentUserId, itemId: itemId })
-      });
-      const data = await res.json();
-      await refreshAllData();
-      document.getElementById("loader").style.display = "none";
-      alert(`เปิดห้องแลกเปลี่ยนสำเร็จ! รหัส ${data.tradeCode}`);
-    }
-
-    async function acceptTradePrompt(tCode, itemName) {
-      if (myInventory.length === 0) return alert("ไม่มีของสำหรับแลก");
-      const yourItemName = prompt(`เพื่อนเสนอ: ${itemName}\nพิมพ์ "ชื่อไอเทมของคุณ" ที่ต้องการมอบตอบแทน:`);
-      if (!yourItemName) return;
-      const myItem = myInventory.find(i => i.name.includes(yourItemName.trim()));
-      if (!myItem) return alert("ไม่พบไอเทมนี้ในกระเป๋า");
-
-      document.getElementById("loader").style.display = "flex";
-      const res = await fetch(GAS_API_URL, {
-        method: "POST",
-        body: JSON.stringify({ action: "acceptTrade", userId: currentUserId, tradeCode: tCode, counterItemId: myItem.id })
-      });
-      const data = await res.json();
-      await refreshAllData();
-      document.getElementById("loader").style.display = "none";
-      if (data.status === "success") alert(`แลกเปลี่ยนสำเร็จ! ได้รับ [${data.receivedItem}] เข้ากระเป๋าแล้ว`);
-      else alert(data.message);
-    }
-
-    window.onload = initApp;
-  </script>
-</body>
-</html>
+    // =========================================================================
+    // 📡 3. ฟังก์ชันดึงและเรนเดอร์ข้อมูล
+    // =========================================================================
+    async function load
