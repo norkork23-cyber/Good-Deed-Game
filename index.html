@@ -404,7 +404,74 @@
     let currentEquippedId = "";
     let myInventory = [];
     let selectedModalItem = null;
+// ==================== ฟังก์ชันโหลดข้อมูลทั้งหมด (refreshAllData) ====================
+    async function refreshAllData() {
+      try {
+        // ดึงข้อมูลทั้งหมดในคำขอเดียวเพื่อความเร็วสูงสุด
+        const res = await fetch(`${GAS_API_URL}?action=getInitialData&userId=${currentUserId}`);
+        const data = await res.json();
 
+        if (data.status === "success") {
+          // 1. อัปเดตข้อมูลโปรไฟล์ผู้เล่น
+          const u = data.user;
+          currentSchool = u.school;
+          currentEquippedId = u.equippedItem;
+
+          document.getElementById("uLevel").innerText = `Lv.${u.level}`;
+          document.getElementById("uBadge").innerText = u.badge;
+          document.getElementById("uSchool").innerText = `🏫 ${u.school}`;
+          document.getElementById("uPoints").innerText = `${u.points} แต้ม`;
+          document.getElementById("uStreak").innerText = `🔥 ${u.streak} วัน`;
+          document.getElementById("questTitle").innerText = u.currentQuest || "กำลังโหลดเควส...";
+          document.getElementById("questStatusText").innerText = u.questSubmitted ? "✅ ส่งเควสประจำสัปดาห์นี้แล้ว" : "⏳ ยังไม่ได้ส่งเควสสัปดาห์นี้";
+
+          // 2. อัปเดตคลังไอเทม
+          myInventory = data.inventory || [];
+          renderInventory();
+          populateTradeSelect();
+
+          // 3. อัปเดต World Boss
+          const b = data.boss;
+          if (b) {
+            document.getElementById("bossName").innerText = b.name;
+            document.getElementById("bossHpText").innerText = `${b.currentHp} / ${b.maxHp} HP`;
+            document.getElementById("bossDmgText").innerText = `ดาเมจรวม: ${b.totalDamage}`;
+            const pct = Math.max(0, Math.round((b.currentHp / b.maxHp) * 100));
+            document.getElementById("bossHpFill").style.width = `${pct}%`;
+            document.getElementById("bossPctText").innerText = `${pct}%`;
+          }
+
+          // 4. อัปเดตรายการตลาดแลกเปลี่ยน
+          renderTrades(data.trades || []);
+        }
+      } catch (err) {
+        console.error("refreshAllData Error:", err);
+      }
+    }
+
+    // ฟังก์ชันช่วยแสดงผลรายการห้องแลกเปลี่ยน
+    function renderTrades(trades) {
+      const c = document.getElementById("tradeList");
+      if (!c) return;
+      c.innerHTML = "";
+      if (trades.length === 0) {
+        c.innerHTML = "<p style='font-size:12px; color:var(--dim);'>ยังไม่มีใครเปิดห้องแลกของ</p>";
+        return;
+      }
+      trades.forEach(t => {
+        const isMe = t.senderId === currentUserId;
+        const b = document.createElement("div");
+        b.style = "background:#0F172A; border:1px solid var(--border); padding:10px; border-radius:10px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;";
+        b.innerHTML = `
+          <div>
+            <div style="font-size:13px; font-weight:700;">${t.senderItemName}</div>
+            <div style="font-size:11px; color:var(--dim);">รหัส: ${t.tradeCode}</div>
+          </div>
+          <div>${isMe ? '<span style="font-size:11px; color:var(--dim);">ห้องคุณ</span>' : `<button class="btn-main" style="padding:6px 12px; font-size:11px;" onclick="acceptTradePrompt('${t.tradeCode}', '${t.senderItemName}')">แลกของ</button>`}</div>
+        `;
+        c.appendChild(b);
+      });
+    }
     // =========================================================================
     // 🚀 2. การเริ่มต้นแอปและรอ SDK
     // =========================================================================
