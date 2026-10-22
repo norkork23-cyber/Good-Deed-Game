@@ -477,4 +477,331 @@
     // =========================================================================
     // 📡 3. ฟังก์ชันดึงและเรนเดอร์ข้อมูล
     // =========================================================================
-    async function load
+    async function loadUserData() {
+      try {
+        const res = await fetch(`${GAS_API_URL}?action=getUserData&userId=${currentUserId}`);
+        const data = await res.json();
+        if (data.status === "success") {
+          const u = data.user;
+          currentSchool = u.school;
+          currentEquippedId = u.equippedItem;
+
+          document.getElementById("uLevel").innerText = `Lv.${u.level}`;
+          document.getElementById("uBadge").innerText = u.badge;
+          document.getElementById("uSchool").innerText = `🏫 ${u.school}`;
+          document.getElementById("uPoints").innerText = `${u.points} แต้ม`;
+          document.getElementById("uStreak").innerText = `🔥 ${u.streak} วัน`;
+          document.getElementById("questTitle").innerText = u.currentQuest || "กำลังโหลดเควส...";
+          document.getElementById("questStatusText").innerText = u.questSubmitted ? "✅ ส่งเควสประจำสัปดาห์นี้แล้ว" : "⏳ ยังไม่ได้ส่งเควสสัปดาห์นี้";
+
+          myInventory = data.inventory || [];
+          renderInventory();
+          populateTradeSelect();
+        }
+      } catch (e) {
+        console.error("loadUserData Error:", e);
+      }
+    }
+
+    async function loadBossData() {
+      try {
+        const res = await fetch(`${GAS_API_URL}?action=getBossData`);
+        const data = await res.json();
+        if (data.status === "success") {
+          const b = data.boss;
+          document.getElementById("bossName").innerText = b.name;
+          document.getElementById("bossHpText").innerText = `${b.currentHp} / ${b.maxHp} HP`;
+          document.getElementById("bossDmgText").innerText = `ดาเมจรวม: ${b.totalDamage}`;
+          const pct = Math.max(0, Math.round((b.currentHp / b.maxHp) * 100));
+          document.getElementById("bossHpFill").style.width = `${pct}%`;
+          document.getElementById("bossPctText").innerText = `${pct}%`;
+        }
+      } catch (e) {
+        console.error("loadBossData Error:", e);
+      }
+    }
+
+    function renderInventory() {
+      const grid = document.getElementById("invGrid");
+      grid.innerHTML = "";
+      let count = 0;
+      myInventory.forEach(i => count += i.qty);
+      document.getElementById("bagCount").innerText = `${count} ชิ้น`;
+
+      const eq = myInventory.find(i => i.id === currentEquippedId);
+      document.getElementById("uEquip").innerText = eq ? `🛡️ สวมใส่: ${eq.name}` : "🛡️ ไม่ได้สวมใส่อุปกรณ์";
+
+      if (myInventory.length === 0) {
+        grid.innerHTML = "<p style='grid-column:span 3; font-size:12px; color:var(--dim); text-align:center; padding:20px;'>ไม่มีไอเทมในกระเป๋า</p>";
+        return;
+      }
+
+      myInventory.forEach(item => {
+        const d = document.createElement("div");
+        d.className = `slot ${item.rarity}`;
+        d.onclick = () => openItemModal(item);
+
+        const iconMatch = item.name.match(/^(\p{Emoji}|\p{Extended_Pictographic})/u);
+        const icon = iconMatch ? iconMatch[0] : "📦";
+        const cleanName = item.name.replace(icon, "").trim();
+
+        d.innerHTML = `
+          <div class="slot-qty">x${item.qty}</div>
+          <div style="font-size:24px; margin:4px 0;">${icon}</div>
+          <div style="font-size:11px; line-height:1.2;">${cleanName || item.name}</div>
+        `;
+        grid.appendChild(d);
+      });
+    }
+
+    // =========================================================================
+    // 🎒 4. Item Actions (Equip / Sacrifice)
+    // =========================================================================
+    function openItemModal(item) {
+      selectedModalItem = item;
+      document.getElementById("modalItemName").innerText = item.name;
+      document.getElementById("modalItemDesc").innerText = `ระดับ: ${item.rarity} | มีทั้งหมด: x${item.qty} ชิ้น`;
+      document.getElementById("itemModal").style.display = "block";
+    }
+
+    function closeModal() {
+      document.getElementById("itemModal").style.display = "none";
+    }
+
+    async function actionEquip() {
+      closeModal();
+      document.getElementById("loader").style.display = "flex";
+      try {
+        await fetch(GAS_API_URL, {
+          method: "POST",
+          body: JSON.stringify({ action: "equipItem", userId: currentUserId, itemId: selectedModalItem.id })
+        });
+        await loadUserData();
+        alert(`สวมใส่ [${selectedModalItem.name}] สำเร็จ!`);
+      } catch (e) {
+        alert("เกิดข้อผิดพลาดในการสวมใส่");
+      } finally {
+        document.getElementById("loader").style.display = "none";
+      }
+    }
+
+    async function actionSacrifice() {
+      if (!confirm(`ต้องการสละ [${selectedModalItem.name}] 1 ชิ้นเพื่อปาใส่ World Boss ใช่หรือไม่?`)) return;
+      closeModal();
+      document.getElementById("loader").style.display = "flex";
+      try {
+        const res = await fetch(GAS_API_URL, {
+          method: "POST",
+          body: JSON.stringify({ action: "sacrificeItem", userId: currentUserId, displayName: currentDisplayName, itemId: selectedModalItem.id })
+        });
+        const data = await res.json();
+        await refreshAllData();
+        if (data.status === "success") {
+          alert(`💥 ปา [${data.itemName}] ใส่บอสสำเร็จ! สร้างความเสียหาย -${data.damageDealt} HP!`);
+        } else {
+          alert(data.message);
+        }
+      } catch (e) {
+        alert("เกิดข้อผิดพลาดในการส่งข้อมูล");
+      } finally {
+        document.getElementById("loader").style.display = "none";
+      }
+    }
+
+    // =========================================================================
+    // 📸 5. Submit Good Deed / Quest via Base64 Image
+    // =========================================================================
+    async function submitGoodDeed() {
+      const isQuest = document.getElementById("submitType").value === "quest";
+      const story = document.getElementById("storyInput").value.trim();
+      const fileInput = document.getElementById("imageInput");
+
+      if (!story) return alert("กรุณาพิมพ์เล่าเรื่องความดีสั้นๆ ด้วยนะคะ");
+      if (fileInput.files.length === 0) return alert("กรุณาเลือกหรือถ่ายภาพหลักฐานด้วยนะคะ");
+
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+
+      document.getElementById("loader").style.display = "flex";
+      document.getElementById("loaderText").innerText = "กำลังอัปโหลดและให้ AI ตรวจสอบ...";
+
+      reader.onload = async function() {
+        const base64Data = reader.result;
+        try {
+          const res = await fetch(GAS_API_URL, {
+            method: "POST",
+            body: JSON.stringify({
+              action: "submitGoodDeed",
+              userId: currentUserId,
+              displayName: currentDisplayName,
+              school: currentSchool,
+              isQuest: isQuest,
+              story: story,
+              imageBase64: base64Data
+            })
+          });
+          const result = await res.json();
+          await refreshAllData();
+          document.getElementById("storyInput").value = "";
+          fileInput.value = "";
+          
+          let alertMsg = `🎉 ${result.message}\nหมวด: ${result.category}`;
+          if (result.droppedItem) alertMsg += `\n🎁 ได้รับของดรอป: [${result.droppedItem}] เข้ากระเป๋า!`;
+          alert(alertMsg);
+        } catch (e) {
+          alert("ส่งข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง");
+        } finally {
+          document.getElementById("loader").style.display = "none";
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // =========================================================================
+    // 🎁 6. Event Code & 🤝 Trade Hub
+    // =========================================================================
+    async function submitEventCode() {
+      const code = document.getElementById("eventCodeInput").value.trim();
+      if (!code) return alert("กรุณาระบุรหัสโค้ด");
+
+      document.getElementById("loader").style.display = "flex";
+      try {
+        const res = await fetch(GAS_API_URL, {
+          method: "POST",
+          body: JSON.stringify({ action: "redeemCode", userId: currentUserId, displayName: currentDisplayName, code: code })
+        });
+        const data = await res.json();
+        await loadUserData();
+        if (data.status === "success") {
+          document.getElementById("eventCodeInput").value = "";
+          alert(`🎉 เติมสำเร็จ! ได้รับไอเทม [${data.itemName}] เข้ากระเป๋าแล้ว`);
+        } else {
+          alert(data.message);
+        }
+      } catch (e) {
+        alert("เกิดข้อผิดพลาดในการเชื่อมต่อ");
+      } finally {
+        document.getElementById("loader").style.display = "none";
+      }
+    }
+
+    function populateTradeSelect() {
+      const sel = document.getElementById("tradeMyItemSelect");
+      sel.innerHTML = "";
+      if (myInventory.length === 0) {
+        sel.innerHTML = "<option value=''>ไม่มีไอเทมสำหรับแลก</option>";
+        return;
+      }
+      myInventory.forEach(i => {
+        const o = document.createElement("option");
+        o.value = i.id;
+        o.innerText = `${i.name} (มี x${i.qty})`;
+        sel.appendChild(o);
+      });
+    }
+
+    async function loadOpenTrades() {
+      try {
+        const res = await fetch(`${GAS_API_URL}?action=getOpenTrades`);
+        const data = await res.json();
+        const c = document.getElementById("tradeList");
+        c.innerHTML = "";
+        if (!data.trades || data.trades.length === 0) {
+          c.innerHTML = "<p style='font-size:12px; color:var(--dim);'>ยังไม่มีใครเปิดห้องแลกของ</p>";
+          return;
+        }
+        data.trades.forEach(t => {
+          const isMe = t.senderId === currentUserId;
+          const b = document.createElement("div");
+          b.style = "background:#0F172A; border:1px solid var(--border); padding:10px; border-radius:10px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;";
+          b.innerHTML = `
+            <div>
+              <div style="font-size:13px; font-weight:700;">${t.senderItemName}</div>
+              <div style="font-size:11px; color:var(--dim);">รหัส: ${t.tradeCode}</div>
+            </div>
+            <div>${isMe ? '<span style="font-size:11px; color:var(--dim);">ห้องคุณ</span>' : `<button class="btn-main" style="padding:6px 12px; font-size:11px;" onclick="acceptTradePrompt('${t.tradeCode}', '${t.senderItemName}')">แลกของ</button>`}</div>
+          `;
+          c.appendChild(b);
+        });
+      } catch (e) {
+        console.error("loadOpenTrades Error:", e);
+      }
+    }
+
+    async function createTradeRoom() {
+      const itemId = document.getElementById("tradeMyItemSelect").value;
+      if (!itemId) return alert("กรุณาเลือกของในกระเป๋า");
+      document.getElementById("loader").style.display = "flex";
+      try {
+        const res = await fetch(GAS_API_URL, {
+          method: "POST",
+          body: JSON.stringify({ action: "createTrade", userId: currentUserId, itemId: itemId })
+        });
+        const data = await res.json();
+        await refreshAllData();
+        alert(`เปิดห้องแลกเปลี่ยนสำเร็จ! รหัส ${data.tradeCode}`);
+      } catch (e) {
+        alert("ไม่สามารถเปิดห้องแลกเปลี่ยนได้");
+      } finally {
+        document.getElementById("loader").style.display = "none";
+      }
+    }
+
+    async function acceptTradePrompt(tCode, itemName) {
+      if (myInventory.length === 0) return alert("ไม่มีของสำหรับแลก");
+      const yourItemName = prompt(`เพื่อนเสนอ: ${itemName}\nพิมพ์ "ชื่อไอเทมของคุณ" ที่ต้องการมอบตอบแทน:`);
+      if (!yourItemName) return;
+      const myItem = myInventory.find(i => i.name.includes(yourItemName.trim()));
+      if (!myItem) return alert("ไม่พบไอเทมนี้ในกระเป๋า");
+
+      document.getElementById("loader").style.display = "flex";
+      try {
+        const res = await fetch(GAS_API_URL, {
+          method: "POST",
+          body: JSON.stringify({ action: "acceptTrade", userId: currentUserId, tradeCode: tCode, counterItemId: myItem.id })
+        });
+        const data = await res.json();
+        await refreshAllData();
+        if (data.status === "success") alert(`แลกเปลี่ยนสำเร็จ! ได้รับ [${data.receivedItem}] เข้ากระเป๋าแล้ว`);
+        else alert(data.message);
+      } catch (e) {
+        alert("เกิดข้อผิดพลาดในการแลกเปลี่ยน");
+      } finally {
+        document.getElementById("loader").style.display = "none";
+      }
+    }
+
+    // =========================================================================
+    // 🧪 7. Mock Data Mode สำหรับเปิดดูตัวอย่างบนคอมพิวเตอร์
+    // =========================================================================
+    async function loadMockData() {
+      document.getElementById("uName").innerText = "น้องผู้กล้า (Demo)";
+      document.getElementById("uLevel").innerText = "Lv.3";
+      document.getElementById("uBadge").innerText = "🛡️ อัศวินแห่งความดี";
+      document.getElementById("uSchool").innerText = "🏫 โรงเรียนเทศบาล 1";
+      document.getElementById("uPoints").innerText = "180 แต้ม";
+      document.getElementById("uStreak").innerText = "🔥 5 วัน";
+      document.getElementById("questTitle").innerText = "🌱 ปลูกต้นไม้หรือดูแลแปลงผัก พร้อมถ่ายรูปคู่กับผลงาน (+50 แต้ม)";
+      document.getElementById("questStatusText").innerText = "⏳ ยังไม่ได้ส่งเควสสัปดาห์นี้";
+
+      document.getElementById("bossName").innerText = "👹 จอมมารขยะพลาสติก";
+      document.getElementById("bossHpText").innerText = "1,240 / 2,000 HP";
+      document.getElementById("bossHpFill").style.width = "62%";
+      document.getElementById("bossDmgText").innerText = "ดาเมจรวม: 760";
+      document.getElementById("bossPctText").innerText = "62%";
+
+      myInventory = [
+        { id: "ITEM_01", name: "🍃 ใบไม้แห่งความเพียร", rarity: "Common", qty: 4 },
+        { id: "ITEM_13", name: "🌱 เมล็ดพันธุ์พิทักษ์โลก", rarity: "Uncommon", qty: 2 },
+        { id: "ITEM_23", name: "💎 คริสตัลจิตอาสา", rarity: "Rare", qty: 1 },
+        { id: "ITEM_31", name: "🔥 เปลวเพลิงแห่งสถิติ", rarity: "Epic", qty: 1 }
+      ];
+      renderInventory();
+      populateTradeSelect();
+    }
+
+    // สั่งเริ่มต้นทำงานเมื่อหน้าเว็บโหลด
+    window.onload = initApp;
+  </script>
+</body>
+</html>
