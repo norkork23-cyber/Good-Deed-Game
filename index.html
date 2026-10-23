@@ -684,7 +684,7 @@
     // =========================================================================
     // 📸 6. ส่งหลักฐานความดี / เควส
     // =========================================================================
-    async function submitGoodDeed() {
+async function submitGoodDeed() {
       const isQuest = document.getElementById("submitType").value === "quest";
       const story = document.getElementById("storyInput").value.trim();
       const fileInput = document.getElementById("imageInput");
@@ -696,7 +696,7 @@
       const reader = new FileReader();
 
       document.getElementById("loader").style.display = "flex";
-      document.getElementById("loaderText").innerText = "กำลังอัปโหลดและส่งให้ AI ตรวจสอบ...";
+      document.getElementById("loaderText").innerText = "กำลังอัปโหลดหลักฐาน...";
 
       reader.onload = async function() {
         const base64Data = reader.result;
@@ -714,13 +714,15 @@
             })
           });
           const result = await res.json();
-          await refreshAllData();
-          document.getElementById("storyInput").value = "";
-          fileInput.value = "";
           
-          let alertMsg = `🎉 ${result.message}`;
-          if (result.droppedItem) alertMsg += `\n🎁 ได้รับของดรอป: [${result.droppedItem}] เข้ากระเป๋า!`;
-          alert(alertMsg);
+          if (result.status === "error") {
+            alert(result.message); // เตือนเมื่อโควตาเต็ม 5 รูป/วัน
+          } else {
+            document.getElementById("storyInput").value = "";
+            fileInput.value = "";
+            alert(result.message);
+            await refreshAllData();
+          }
         } catch (e) {
           alert("ส่งข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง");
         } finally {
@@ -729,7 +731,7 @@
       };
       reader.readAsDataURL(file);
     }
-
+    
     // =========================================================================
     // 🎁 7. เติมโค้ดกิจกรรม & 🤝 ตลาดเทรดของ
     // =========================================================================
