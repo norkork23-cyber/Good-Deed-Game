@@ -5,13 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Good Deed Quest RPG</title>
 
-  <!-- 🟢 โหลด LINE LIFF SDK ลำดับแรกสุดเพื่อป้องกัน liff is not defined -->
-  <script charset="utf-8" src="[https://static.line-scdn.net/liff/edge/2/sdk.js](https://static.line-scdn.net/liff/edge/2/sdk.js)"></script>
+  <!-- 🟢 1. โหลด LINE LIFF SDK ลำดับแรกสุดเสมอ -->
+  <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 
   <!-- Google Fonts: Prompt -->
-  <link rel="preconnect" href="[https://fonts.googleapis.com](https://fonts.googleapis.com)">
-  <link rel="preconnect" href="[https://fonts.gstatic.com](https://fonts.gstatic.com)" crossorigin>
-  <link href="[https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap](https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap)" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
     :root {
@@ -263,7 +263,7 @@
   <!-- Loading Screen -->
   <div id="loader">
     <div class="spinner"></div>
-    <p style="margin-top: 14px; font-size: 13px; color: var(--dim);" id="loaderText">กำลังเชื่อมต่อฐานข้อมูลเกม...</p>
+    <p style="margin-top: 14px; font-size: 13px; color: var(--dim);" id="loaderText">กำลังตรวจสอบข้อมูลบัญชี LINE...</p>
   </div>
 
   <!-- Navigation Tabs -->
@@ -320,14 +320,12 @@
 
   <!-- TAB 2: QUEST & SUBMISSION -->
   <div id="questTab" class="tab-content">
-    <!-- Weekly Quest Card -->
     <div class="card" style="border-color: #8B5CF6;">
       <div class="title" style="color: #C084FC;">🎯 เควสประจำสัปดาห์ (+50 แต้ม)</div>
       <p style="font-size: 13px; line-height: 1.4; margin-bottom: 8px;" id="questTitle">กำลังโหลดเควส...</p>
       <div id="questStatusText" style="font-size: 12px; color: var(--green); font-weight: 600;"></div>
     </div>
 
-    <!-- Form Submit -->
     <div class="card">
       <div class="title">📸 อัปโหลดหลักฐานทำความดี (AI ตรวจทันที)</div>
       <label style="font-size: 11px; color: var(--dim);">เลือกโหมดการส่ง:</label>
@@ -416,65 +414,59 @@
 
   <script>
     // =========================================================================
-    // ⚙️ 1. กำหนดค่า LIFF ID และ URL Apps Script
+    // ⚙️ 1. กำหนดค่า LIFF ID และ Web App URL
     // =========================================================================
     const MY_LIFF_ID = "2012153789-X3yDlaPl";
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzR3QDLt30e15PrVO3oftFbYZfVWBTCJ5smbnu4ykBotrw6cQhP0SzJzAVO5CtkaeeV/exec";
 
+    // 🔒 ตัวแปรเริ่มต้นเป็นค่าว่าง (ตัด Demo ID ทิ้ง)
     let currentUserId = "";
     let currentDisplayName = "";
-    let currentSchool = "ทั่วไป";
+    let currentSchool = "";
     let currentEquippedId = "";
     let myInventory = [];
     let selectedModalItem = null;
 
     // =========================================================================
-    // 🚀 2. การเริ่มต้นแอปและรอ SDK
+    // 🚀 2. การเริ่มต้นและบังคับล็อกอินผ่าน LINE จริงเท่านั้น
     // =========================================================================
     async function initApp() {
       const loader = document.getElementById("loader");
       const loaderText = document.getElementById("loaderText");
 
       let retryCount = 0;
-      while (typeof liff === "undefined" && retryCount < 20) {
+      while (typeof liff === "undefined" && retryCount < 25) {
         await new Promise(resolve => setTimeout(resolve, 200));
         retryCount++;
       }
 
       if (typeof liff === "undefined") {
-        console.warn("ไม่สามารถโหลด LINE SDK ได้ สลับเข้าสู่โหมดทดสอบ");
-        await loadMockData();
-        loader.style.display = "none";
+        loaderText.innerText = "ไม่สามารถเชื่อมต่อกับ LINE SDK ได้ กรุณาลองใหม่อีกครั้ง";
         return;
       }
 
       try {
-        if (MY_LIFF_ID.includes("ใส่_LIFF")) {
-          console.warn("รันในโหมด Browser Test (Mock Data)");
-          await loadMockData();
-          loader.style.display = "none";
+        await liff.init({ liffId: MY_LIFF_ID });
+
+        // หากยังไม่ได้เข้าสู่ระบบ ให้บังคับล็อกอินผ่าน LINE
+        if (!liff.isLoggedIn()) {
+          liff.login({ redirectUri: window.location.href });
           return;
         }
 
-        await liff.init({ liffId: MY_LIFF_ID });
+        // ดึงโปรไฟล์จริงของเครื่องที่กำลังเปิด
+        const profile = await liff.getProfile();
+        currentUserId = profile.userId;
+        currentDisplayName = profile.displayName;
+        document.getElementById("uName").innerText = currentDisplayName;
 
-        // ตรวจสอบการล็อกอินและดึงโปรไฟล์จริงของแต่ละคน
-if (!liff.isLoggedIn()) {
-  liff.login();
-  return;
-}
-
-const profile = await liff.getProfile();
-currentUserId = profile.userId;            // 👈 ต้องดึงจากโปรไฟล์ของเครื่องนั้นๆ
-currentDisplayName = profile.displayName;  // 👈 ดึงชื่อของเครื่องนั้นๆ
-document.getElementById("uName").innerText = currentDisplayName;
-
+        loaderText.innerText = "กำลังโหลดข้อมูลผู้เล่น...";
         await refreshAllData();
         loader.style.display = "none";
 
       } catch (err) {
         console.error("Init Error:", err);
-        loaderText.innerText = "เชื่อมต่อล้มเหลว: " + err.message;
+        loaderText.innerText = "เข้าสู่ระบบไม่สำเร็จ: " + err.message;
       }
     }
 
@@ -482,8 +474,9 @@ document.getElementById("uName").innerText = currentDisplayName;
     // ⚡ 3. ดึงและเรนเดอร์ข้อมูลแบบ Single Batch
     // =========================================================================
     async function refreshAllData() {
+      if (!currentUserId) return;
       try {
-        const res = await fetch(`${GAS_API_URL}?action=getInitialData&userId=${currentUserId}`);
+        const res = await fetch(`${GAS_API_URL}?action=getInitialData&userId=${encodeURIComponent(currentUserId)}`);
         const data = await res.json();
 
         if (data.status === "success") {
@@ -491,7 +484,7 @@ document.getElementById("uName").innerText = currentDisplayName;
           currentSchool = u.school;
           currentEquippedId = u.equippedItem;
 
-          // ตรวจสอบสถานะการลงทะเบียน
+          // ถ้ายังไม่ได้ลงทะเบียนในตาราง Users ให้แสดง Modal ลงทะเบียน
           if (!u.isRegistered || !u.school || u.school === "ทั่วไป" || u.school === "-") {
             document.getElementById("registerModal").style.display = "block";
           } else {
@@ -500,10 +493,10 @@ document.getElementById("uName").innerText = currentDisplayName;
 
           document.getElementById("uLevel").innerText = `Lv.${u.level}`;
           document.getElementById("uBadge").innerText = u.badge;
-          document.getElementById("uSchool").innerText = `🏫 ${u.school}`;
+          document.getElementById("uSchool").innerText = `🏫 ${u.school || "ยังไม่ระบุ"}`;
           document.getElementById("uPoints").innerText = `${u.points} แต้ม`;
           document.getElementById("uStreak").innerText = `🔥 ${u.streak} วัน`;
-          document.getElementById("questTitle").innerText = u.currentQuest || "กำลังโหลดเควส...";
+          document.getElementById("questTitle").innerText = u.currentQuest || "ไม่มีเควสในขณะนี้";
           document.getElementById("questStatusText").innerText = u.questSubmitted ? "✅ ส่งเควสประจำสัปดาห์นี้แล้ว" : "⏳ ยังไม่ได้ส่งเควสสัปดาห์นี้";
 
           myInventory = data.inventory || [];
@@ -813,35 +806,6 @@ document.getElementById("uName").innerText = currentDisplayName;
       } finally {
         document.getElementById("loader").style.display = "none";
       }
-    }
-
-    // =========================================================================
-    // 🧪 8. Mock Mode สำหรับทดสอบบน Browser คอมพิวเตอร์
-    // =========================================================================
-    async function loadMockData() {
-      document.getElementById("uName").innerText = "น้องผู้กล้า (Demo)";
-      document.getElementById("uLevel").innerText = "Lv.3";
-      document.getElementById("uBadge").innerText = "🛡️ อัศวินแห่งความดี";
-      document.getElementById("uSchool").innerText = "🏫 โรงเรียนเทศบาล 1";
-      document.getElementById("uPoints").innerText = "180 แต้ม";
-      document.getElementById("uStreak").innerText = "🔥 5 วัน";
-      document.getElementById("questTitle").innerText = "🌱 ปลูกต้นไม้หรือดูแลแปลงผัก พร้อมถ่ายรูปคู่กับผลงาน (+50 แต้ม)";
-      document.getElementById("questStatusText").innerText = "⏳ ยังไม่ได้ส่งเควสสัปดาห์นี้";
-
-      document.getElementById("bossName").innerText = "👹 จอมมารขยะพลาสติก";
-      document.getElementById("bossHpText").innerText = "1,240 / 2,000 HP";
-      document.getElementById("bossHpFill").style.width = "62%";
-      document.getElementById("bossDmgText").innerText = "ดาเมจรวม: 760";
-      document.getElementById("bossPctText").innerText = "62%";
-
-      myInventory = [
-        { id: "ITEM_01", name: "🍃 ใบไม้แห่งความเพียร", rarity: "Common", qty: 4 },
-        { id: "ITEM_13", name: "🌱 เมล็ดพันธุ์พิทักษ์โลก", rarity: "Uncommon", qty: 2 },
-        { id: "ITEM_23", name: "💎 คริสตัลจิตอาสา", rarity: "Rare", qty: 1 },
-        { id: "ITEM_31", name: "🔥 เปลวเพลิงแห่งสถิติ", rarity: "Epic", qty: 1 }
-      ];
-      renderInventory();
-      populateTradeSelect();
     }
 
     window.onload = initApp;
