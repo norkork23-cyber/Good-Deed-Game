@@ -458,15 +458,16 @@
 
         await liff.init({ liffId: MY_LIFF_ID });
 
-        if (!liff.isLoggedIn()) {
-          liff.login();
-          return;
-        }
+        // ตรวจสอบการล็อกอินและดึงโปรไฟล์จริงของแต่ละคน
+if (!liff.isLoggedIn()) {
+  liff.login();
+  return;
+}
 
-        const profile = await liff.getProfile();
-        currentUserId = profile.userId;
-        currentDisplayName = profile.displayName;
-        document.getElementById("uName").innerText = currentDisplayName;
+const profile = await liff.getProfile();
+currentUserId = profile.userId;            // 👈 ต้องดึงจากโปรไฟล์ของเครื่องนั้นๆ
+currentDisplayName = profile.displayName;  // 👈 ดึงชื่อของเครื่องนั้นๆ
+document.getElementById("uName").innerText = currentDisplayName;
 
         await refreshAllData();
         loader.style.display = "none";
