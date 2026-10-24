@@ -318,32 +318,57 @@
     </div>
   </div>
 
-  <!-- TAB 2: QUEST & SUBMISSION -->
+  <!-- ==================== TAB 2: QUEST & SUBMISSION ==================== -->
   <div id="questTab" class="tab-content">
+    
+    <!-- การ์ดเควสประจำสัปดาห์ -->
     <div class="card" style="border-color: #8B5CF6;">
       <div class="title" style="color: #C084FC;">🎯 เควสประจำสัปดาห์ (+50 แต้ม)</div>
       <p style="font-size: 13px; line-height: 1.4; margin-bottom: 8px;" id="questTitle">กำลังโหลดเควส...</p>
       <div id="questStatusText" style="font-size: 12px; color: var(--green); font-weight: 600;"></div>
     </div>
 
+    <!-- ฟอร์มอัปโหลดหลักฐานความดี -->
     <div class="card">
-      <div class="title">📸 อัปโหลดหลักฐานทำความดี (AI ตรวจทันที)</div>
-      <label style="font-size: 11px; color: var(--dim);">เลือกโหมดการส่ง:</label>
-      <select id="submitType">
-        <option value="normal">🌟 ความดีทั่วไป (10-20 แต้ม)</option>
-        <option value="quest">🎯 ส่งการบ้านเควสสัปดาห์ (50 แต้ม)</option>
+      <div class="title">📸 อัปโหลดหลักฐานทำความดี</div>
+      <p style="font-size: 11px; color: var(--dim); margin-bottom: 12px;">(จำกัดส่งวันละ 5 ครั้ง • คุณครูเป็นผู้ตรวจและให้แต้ม)</p>
+
+      <label style="font-size: 12px; color: var(--dim); display:block; margin-bottom:4px;">เลือกโหมดการส่ง:</label>
+      <select id="submitType" style="width:100%; padding:10px; background:#0F172A; border:1px solid var(--border); border-radius:10px; color:#fff; margin-bottom:12px;">
+        <option value="normal">🌟 ความดีทั่วไป</option>
+        <option value="quest">🎯 ส่งการบ้านเควสสัปดาห์</option>
       </select>
 
-      <label style="font-size: 11px; color: var(--dim);">พิมพ์เล่าความดีที่ทำ:</label>
-      <textarea id="storyInput" rows="2" placeholder="เช่น ช่วยคุณแม่ล้างจานและจัดระเบียบโต๊ะอาหาร..."></textarea>
+      <label style="font-size: 12px; color: var(--dim); display:block; margin-bottom:4px;">พิมพ์เล่าความดีที่ทำ:</label>
+      <textarea id="storyInput" rows="3" placeholder="เช่น ช่วยคุณแม่ล้างจานและจัดระเบียบโต๊ะอาหาร..." style="width:100%; padding:10px; background:#0F172A; border:1px solid var(--border); border-radius:10px; color:#fff; margin-bottom:12px; box-sizing:border-box;"></textarea>
 
-      <label style="font-size: 11px; color: var(--dim);">ถ่ายรูป / เลือกภาพหลักฐาน:</label>
-      <input type="file" id="imageInput" accept="image/*>
+      <label style="font-size: 12px; color: var(--dim); display:block; margin-bottom:4px;">เลือกภาพหลักฐาน (จากกล้องหรือคลังภาพ):</label>
+      <input type="file" id="imageInput" accept="image/*" style="width:100%; margin-bottom:16px;">
 
-      <button class="btn-main" onclick="submitGoodDeed()">🚀 ส่งหลักฐานเพื่อรับแต้มและลดเลือดบอส</button>
+      <!-- 🟢🟢🟢 ปุ่มกดส่งงาน (แสดงชัดเจนแน่นอน) 🟢🟢🟢 -->
+      <button type="button" 
+              id="btnSubmitGoodDeed" 
+              onclick="submitGoodDeed()" 
+              style="width: 100%; 
+                     padding: 15px; 
+                     background: #10B981; 
+                     color: #FFFFFF; 
+                     font-weight: 700; 
+                     font-size: 16px; 
+                     border: none; 
+                     border-radius: 12px; 
+                     cursor: pointer; 
+                     display: block; 
+                     box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);">
+        🚀 ส่งหลักฐานให้คุณครูตรวจสอบ
+      </button>
+
     </div>
-  </div>
 
+    <!-- ระยะเว้นขอบล่างพิเศษ ป้องกันแถบจอทั้ง Android/iOS บังปุ่ม -->
+    <div style="height: 120px;"></div>
+  </div>
+  
   <!-- TAB 3: INVENTORY (BAG) -->
   <div id="bagTab" class="tab-content">
     <div class="card">
