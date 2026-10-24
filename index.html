@@ -2,10 +2,10 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Good Deed Quest RPG</title>
 
-  <!-- 🟢 1. โหลด LINE LIFF SDK ลำดับแรกสุดเสมอ -->
+  <!-- 🟢 โหลด LINE LIFF SDK ลำดับแรกสุดเสมอ -->
   <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 
   <!-- Google Fonts: Prompt -->
@@ -49,9 +49,12 @@
       background: var(--bg);
       color: var(--text);
       padding: 14px;
-      padding-bottom: 70px;
+      /* รองรับ Safe Area ขอบล่างทั้ง iOS และ Android */
+      padding-bottom: calc(120px + env(safe-area-inset-bottom, 20px));
       max-width: 480px;
       margin: 0 auto;
+      min-height: 100vh;
+      -webkit-overflow-scrolling: touch;
     }
 
     /* Loader */
@@ -87,11 +90,11 @@
     }
     .tab-btn {
       flex: 1;
-      padding: 10px 4px;
+      padding: 12px 2px;
       background: none;
       border: none;
       color: var(--dim);
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 600;
       cursor: pointer;
       border-radius: 10px;
@@ -103,6 +106,7 @@
       border: 1px solid var(--border);
     }
 
+    /* Tab Switch Mechanism */
     .tab-content { display: none; }
     .tab-content.active { display: block; }
 
@@ -148,7 +152,7 @@
       border: 1px solid rgba(255,255,255,0.05);
     }
 
-    /* World Boss Box */
+    /* Boss Box */
     .boss-box {
       background: linear-gradient(135deg, #3B0764, #1E1B4B);
       border: 1.5px solid #7E22CE;
@@ -175,30 +179,34 @@
     /* Forms */
     input, textarea, select {
       width: 100%;
-      padding: 10px 12px;
+      padding: 11px 12px;
       background: #0F172A;
       border: 1px solid var(--border);
       border-radius: 10px;
       color: #fff;
       font-size: 13px;
       margin-top: 4px;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
       outline: none;
+      box-sizing: border-box;
     }
     .btn-main {
       width: 100%;
-      padding: 12px;
+      padding: 14px;
       background: var(--green);
       border: none;
-      border-radius: 10px;
+      border-radius: 12px;
       color: #fff;
-      font-weight: 600;
-      font-size: 14px;
+      font-weight: 700;
+      font-size: 15px;
       cursor: pointer;
+      display: block;
+      margin-top: 8px;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
       transition: opacity 0.2s;
     }
     .btn-main:active { opacity: 0.85; }
-    .btn-purple { background: var(--purple); }
+    .btn-purple { background: var(--purple); box-shadow: 0 4px 14px rgba(139, 92, 246, 0.35); }
 
     /* Inventory Grid */
     .grid {
@@ -263,19 +271,18 @@
   <!-- Loading Screen -->
   <div id="loader">
     <div class="spinner"></div>
-    <p style="margin-top: 14px; font-size: 13px; color: var(--dim);" id="loaderText">กำลังตรวจสอบข้อมูลบัญชี LINE...</p>
+    <p style="margin-top: 14px; font-size: 13px; color: var(--dim);" id="loaderText">กำลังเชื่อมต่อฐานข้อมูลเกม...</p>
   </div>
 
   <!-- Navigation Tabs -->
-<div class="tabs">
+  <div class="tabs">
     <button class="tab-btn active" onclick="switchTab('profileTab', event)">🎮 หน้าหลัก</button>
-    <!-- แตะปุ่มนี้เพื่อไปหน้าส่งงานที่มีปุ่มเขียว -->
     <button class="tab-btn" onclick="switchTab('questTab', event)">🎯 เควส/ส่งงาน</button>
     <button class="tab-btn" onclick="switchTab('bagTab', event)">🎒 คลังเป้</button>
     <button class="tab-btn" onclick="switchTab('tradeTab', event)">🤝 เทรดของ</button>
   </div>
 
-  <!-- TAB 1: PROFILE & BOSS -->
+  <!-- ==================== TAB 1: PROFILE & BOSS ==================== -->
   <div id="profileTab" class="tab-content active">
     <div class="card">
       <div class="hero-top">
@@ -321,7 +328,6 @@
 
   <!-- ==================== TAB 2: QUEST & SUBMISSION ==================== -->
   <div id="questTab" class="tab-content">
-    
     <!-- การ์ดเควสประจำสัปดาห์ -->
     <div class="card" style="border-color: #8B5CF6;">
       <div class="title" style="color: #C084FC;">🎯 เควสประจำสัปดาห์ (+50 แต้ม)</div>
@@ -329,48 +335,33 @@
       <div id="questStatusText" style="font-size: 12px; color: var(--green); font-weight: 600;"></div>
     </div>
 
-    <!-- ฟอร์มอัปโหลดหลักฐานความดี -->
+    <!-- ฟอร์มอัปโหลดหลักฐานทำความดี -->
     <div class="card">
-      <div class="title">📸 อัปโหลดหลักฐานทำความดี</div>
-      <p style="font-size: 11px; color: var(--dim); margin-bottom: 12px;">(จำกัดส่งวันละ 5 ครั้ง • คุณครูเป็นผู้ตรวจและให้แต้ม)</p>
+      <div class="title">📸 ส่งหลักฐานการทำความดี</div>
+      <p style="font-size: 11px; color: var(--dim); margin-bottom: 12px;">(จำกัดส่งวันละไม่เกิน 5 ครั้ง • คุณครูเป็นผู้ตรวจและให้แต้ม)</p>
 
-      <label style="font-size: 12px; color: var(--dim); display:block; margin-bottom:4px;">เลือกโหมดการส่ง:</label>
-      <select id="submitType" style="width:100%; padding:10px; background:#0F172A; border:1px solid var(--border); border-radius:10px; color:#fff; margin-bottom:12px;">
+      <label style="font-size: 12px; color: var(--dim); display:block;">เลือกประเภทภารกิจ:</label>
+      <select id="submitType">
         <option value="normal">🌟 ความดีทั่วไป</option>
-        <option value="quest">🎯 ส่งการบ้านเควสสัปดาห์</option>
+        <option value="quest">🎯 ส่งเควสประจำสัปดาห์</option>
       </select>
 
-      <label style="font-size: 12px; color: var(--dim); display:block; margin-bottom:4px;">พิมพ์เล่าความดีที่ทำ:</label>
-      <textarea id="storyInput" rows="3" placeholder="เช่น ช่วยคุณแม่ล้างจานและจัดระเบียบโต๊ะอาหาร..." style="width:100%; padding:10px; background:#0F172A; border:1px solid var(--border); border-radius:10px; color:#fff; margin-bottom:12px; box-sizing:border-box;"></textarea>
+      <label style="font-size: 12px; color: var(--dim); display:block;">เล่าความดีที่น้องทำ:</label>
+      <textarea id="storyInput" rows="3" placeholder="เช่น ช่วยคุณแม่ล้างจาน กวาดห้อง หรือจัดกระเป๋านักเรียน..."></textarea>
 
-      <label style="font-size: 12px; color: var(--dim); display:block; margin-bottom:4px;">เลือกภาพหลักฐาน (จากกล้องหรือคลังภาพ):</label>
-      <input type="file" id="imageInput" accept="image/*" style="width:100%; margin-bottom:16px;">
+      <label style="font-size: 12px; color: var(--dim); display:block;">เลือกรูปภาพหลักฐาน:</label>
+      <input type="file" id="imageInput" accept="image/*">
 
-      <!-- 🟢🟢🟢 ปุ่มกดส่งงาน (แสดงชัดเจนแน่นอน) 🟢🟢🟢 -->
-      <button type="button" 
-              id="btnSubmitGoodDeed" 
-              onclick="submitGoodDeed()" 
-              style="width: 100%; 
-                     padding: 15px; 
-                     background: #10B981; 
-                     color: #FFFFFF; 
-                     font-weight: 700; 
-                     font-size: 16px; 
-                     border: none; 
-                     border-radius: 12px; 
-                     cursor: pointer; 
-                     display: block; 
-                     box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);">
+      <!-- 🟢 ปุ่มส่งงานเด่นชัด -->
+      <button type="button" class="btn-main" id="btnSubmitGoodDeed" onclick="submitGoodDeed()">
         🚀 ส่งหลักฐานให้คุณครูตรวจสอบ
       </button>
-
     </div>
 
-    <!-- ระยะเว้นขอบล่างพิเศษ ป้องกันแถบจอทั้ง Android/iOS บังปุ่ม -->
     <div style="height: 120px;"></div>
   </div>
-  
-  <!-- TAB 3: INVENTORY (BAG) -->
+
+  <!-- ==================== TAB 3: INVENTORY (BAG) ==================== -->
   <div id="bagTab" class="tab-content">
     <div class="card">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
@@ -382,11 +373,11 @@
     </div>
   </div>
 
-  <!-- TAB 4: TRADE HUB -->
+  <!-- ==================== TAB 4: TRADE HUB ==================== -->
   <div id="tradeTab" class="tab-content">
     <div class="card">
       <div class="title">➕ เปิดห้องแลกเปลี่ยนใหม่</div>
-      <label style="font-size: 11px; color: var(--dim);">เลือกไอเทมของคุณที่จะนำไปแลก:</label>
+      <label style="font-size: 11px; color: var(--dim); display:block;">เลือกไอเทมของคุณที่จะนำไปแลก:</label>
       <select id="tradeMyItemSelect"></select>
       <button class="btn-main" onclick="createTradeRoom()">สร้างห้องแลกเปลี่ยน</button>
     </div>
@@ -407,7 +398,7 @@
       <p style="font-size: 12px; color: var(--dim); margin-bottom: 14px;" id="modalItemDesc">ระดับ: Common | มี x0 ชิ้น</p>
       
       <button class="btn-main" style="margin-bottom: 8px;" onclick="actionEquip()">🛡️ สวมใส่เป็นอุปกรณ์หลัก</button>
-      <button class="btn-main" style="background: var(--red);" onclick="actionSacrifice()">💥 สละไอเทมปาใส่ World Boss</button>
+      <button class="btn-main" style="background: var(--red); box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);" onclick="actionSacrifice()">💥 สละไอเทมปาใส่ World Boss</button>
     </div>
   </div>
 
@@ -417,32 +408,24 @@
       <h3 style="font-size: 16px; font-weight: 700; color: #38BDF8; margin-bottom: 6px;">📝 ลงทะเบียนผู้กล้าคนใหม่</h3>
       <p style="font-size: 12px; color: var(--dim); margin-bottom: 12px;">กรุณาเลือกโรงเรียนและระดับชั้นของน้องก่อนเริ่มเล่นเกมนะคะ</p>
       
-      <label style="font-size: 12px; color: var(--dim);">🏫 ชุมชน:</label>
+      <label style="font-size: 12px; color: var(--dim); display:block;">🏫 โรงเรียน:</label>
       <select id="regSchool">
-        <option value="=ชุมชนชากกระปอก">ชุมชนชากกระปอก</option>
-        <option value="ชุมชนหนองขาม">ชุมชนหนองขาม</option>
-        <option value="ชุมชนเศรษฐีในฝัน">ชุมชนเศรษฐีในฝัน</option>
-        <option value="ชุมชนไร่หนึ่ง">ชุมชนไร่หนึ่ง</option>
-        <option value="อื่นๆ">อื่นๆ</option>
+        <option value="โรงเรียนเทศบาล 1">โรงเรียนเทศบาล 1</option>
+        <option value="โรงเรียนบ้านบึง">โรงเรียนบ้านบึง</option>
+        <option value="โรงเรียนวัดดอน">โรงเรียนวัดดอน</option>
       </select>
 
-      <label style="font-size: 12px; color: var(--dim);">📚 ระดับชั้น:</label>
+      <label style="font-size: 12px; color: var(--dim); display:block;">📚 ระดับชั้น:</label>
       <select id="regGrade">
-        <option value="ป.2">ประถมศึกษาปีที่ 2 (ป.2)</option>
-        <option value="ป.3">ประถมศึกษาปีที่ 3 (ป.3)</option>
         <option value="ป.4">ประถมศึกษาปีที่ 4 (ป.4)</option>
         <option value="ป.5">ประถมศึกษาปีที่ 5 (ป.5)</option>
         <option value="ป.6">ประถมศึกษาปีที่ 6 (ป.6)</option>
         <option value="ม.1">มัธยมศึกษาปีที่ 1 (ม.1)</option>
         <option value="ม.2">มัธยมศึกษาปีที่ 2 (ม.2)</option>
         <option value="ม.3">มัธยมศึกษาปีที่ 3 (ม.3)</option>
-        <option value="ม.4">มัธยมศึกษาปีที่ 4 (ม.4)</option>
-        <option value="ม.5">มัธยมศึกษาปีที่ 5 (ม.5)</option>
-        <option value="ม.6">มัธยมศึกษาปีที่ 6 (ม.6)</option>
-        <option value="อื่นๆ">อื่นๆ</option>
       </select>
 
-      <button class="btn-main" onclick="submitRegistration()" style="margin-top: 10px;">ยืนยันข้อมูลและเริ่มเล่นเกม ✨</button>
+      <button class="btn-main" onclick="submitRegistration()">ยืนยันข้อมูลและเริ่มเล่นเกม ✨</button>
     </div>
   </div>
 
@@ -450,10 +433,9 @@
     // =========================================================================
     // ⚙️ 1. กำหนดค่า LIFF ID และ Web App URL
     // =========================================================================
-    const MY_LIFF_ID = "2012153789-X3yDlaPl";
-    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzR3QDLt30e15PrVO3oftFbYZfVWBTCJ5smbnu4ykBotrw6cQhP0SzJzAVO5CtkaeeV/exec";
+    const MY_LIFF_ID = "2007871276-8ZJ58GxA";
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbyc914tP397w2mP6y3j-jVfO1u6aI0gKq5Y8NlW/exec";
 
-    // 🔒 ตัวแปรเริ่มต้นเป็นค่าว่าง (ตัด Demo ID ทิ้ง)
     let currentUserId = "";
     let currentDisplayName = "";
     let currentSchool = "";
@@ -462,7 +444,7 @@
     let selectedModalItem = null;
 
     // =========================================================================
-    // 🚀 2. การเริ่มต้นและบังคับล็อกอินผ่าน LINE จริงเท่านั้น
+    // 🚀 2. การเริ่มต้นและตรวจสอบ LINE Profile
     // =========================================================================
     async function initApp() {
       const loader = document.getElementById("loader");
@@ -475,20 +457,18 @@
       }
 
       if (typeof liff === "undefined") {
-        loaderText.innerText = "ไม่สามารถเชื่อมต่อกับ LINE SDK ได้ กรุณาลองใหม่อีกครั้ง";
+        loaderText.innerText = "ไม่สามารถเชื่อมต่อ LINE SDK ได้ กรุณาลองใหม่อีกครั้ง";
         return;
       }
 
       try {
         await liff.init({ liffId: MY_LIFF_ID });
 
-        // หากยังไม่ได้เข้าสู่ระบบ ให้บังคับล็อกอินผ่าน LINE
         if (!liff.isLoggedIn()) {
           liff.login({ redirectUri: window.location.href });
           return;
         }
 
-        // ดึงโปรไฟล์จริงของเครื่องที่กำลังเปิด
         const profile = await liff.getProfile();
         currentUserId = profile.userId;
         currentDisplayName = profile.displayName;
@@ -505,7 +485,24 @@
     }
 
     // =========================================================================
-    // ⚡ 3. ดึงและเรนเดอร์ข้อมูลแบบ Single Batch
+    // 🔄 3. ฟังก์ชันสลับแท็บ (แก้ปัญหาหน้าจอไม่เปลี่ยน)
+    // =========================================================================
+    function switchTab(tabId, event) {
+      document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+
+      const target = document.getElementById(tabId);
+      if (target) {
+        target.classList.add("active");
+      }
+
+      if (event && event.currentTarget) {
+        event.currentTarget.classList.add("active");
+      }
+    }
+
+    // =========================================================================
+    // ⚡ 4. ดึงและเรนเดอร์ข้อมูลแบบ Single Batch
     // =========================================================================
     async function refreshAllData() {
       if (!currentUserId) return;
@@ -518,7 +515,7 @@
           currentSchool = u.school;
           currentEquippedId = u.equippedItem;
 
-          // ถ้ายังไม่ได้ลงทะเบียนในตาราง Users ให้แสดง Modal ลงทะเบียน
+          // ตรวจสอบการลงทะเบียน
           if (!u.isRegistered || !u.school || u.school === "ทั่วไป" || u.school === "-") {
             document.getElementById("registerModal").style.display = "block";
           } else {
@@ -554,22 +551,6 @@
       }
     }
 
-    function switchTab(tabId, event) {
-      // ซ่อนทุกแท็บ
-      document.querySelectorAll(".tab-content").forEach(c => c.style.display = "none");
-      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-      
-      // แสดงเฉพาะแท็บที่เลือก
-      const targetTab = document.getElementById(tabId);
-      if (targetTab) {
-        targetTab.style.display = "block";
-      }
-      
-      if (event && event.currentTarget) {
-        event.currentTarget.classList.add("active");
-      }
-    }
-    
     function renderInventory() {
       const grid = document.getElementById("invGrid");
       grid.innerHTML = "";
@@ -620,14 +601,14 @@
             <div style="font-size:13px; font-weight:700;">${t.senderItemName}</div>
             <div style="font-size:11px; color:var(--dim);">รหัส: ${t.tradeCode}</div>
           </div>
-          <div>${isMe ? '<span style="font-size:11px; color:var(--dim);">ห้องคุณ</span>' : `<button class="btn-main" style="padding:6px 12px; font-size:11px;" onclick="acceptTradePrompt('${t.tradeCode}', '${t.senderItemName}')">แลกของ</button>`}</div>
+          <div>${isMe ? '<span style="font-size:11px; color:var(--dim);">ห้องคุณ</span>' : `<button class="btn-main" style="padding:6px 12px; font-size:11px; margin-top:0;" onclick="acceptTradePrompt('${t.tradeCode}', '${t.senderItemName}')">แลกของ</button>`}</div>
         `;
         c.appendChild(b);
       });
     }
 
     // =========================================================================
-    // 📝 4. ลงทะเบียนผู้ใช้ใหม่
+    // 📝 5. ลงทะเบียนผู้ใช้ใหม่
     // =========================================================================
     async function submitRegistration() {
       const school = document.getElementById("regSchool").value;
@@ -661,7 +642,7 @@
     }
 
     // =========================================================================
-    // 🎒 5. จัดการไอเทม (สวมใส่ / ปาใส่ Boss)
+    // 🎒 6. จัดการไอเทม (สวมใส่ / ปาใส่ Boss)
     // =========================================================================
     function openItemModal(item) {
       selectedModalItem = item;
@@ -715,9 +696,9 @@
     }
 
     // =========================================================================
-    // 📸 6. ส่งหลักฐานความดี / เควส
+    // 📸 7. ส่งหลักฐานความดี / เควส (จำกัด 5 ครั้ง/วัน + คนตรวจ 100%)
     // =========================================================================
-async function submitGoodDeed() {
+    async function submitGoodDeed() {
       const isQuest = document.getElementById("submitType").value === "quest";
       const story = document.getElementById("storyInput").value.trim();
       const fileInput = document.getElementById("imageInput");
@@ -749,7 +730,7 @@ async function submitGoodDeed() {
           const result = await res.json();
           
           if (result.status === "error") {
-            alert(result.message); // เตือนเมื่อโควตาเต็ม 5 รูป/วัน
+            alert(result.message);
           } else {
             document.getElementById("storyInput").value = "";
             fileInput.value = "";
@@ -764,9 +745,9 @@ async function submitGoodDeed() {
       };
       reader.readAsDataURL(file);
     }
-    
+
     // =========================================================================
-    // 🎁 7. เติมโค้ดกิจกรรม & 🤝 ตลาดเทรดของ
+    // 🎁 8. เติมโค้ดกิจกรรม & 🤝 ตลาดเทรดของ
     // =========================================================================
     async function submitEventCode() {
       const code = document.getElementById("eventCodeInput").value.trim();
