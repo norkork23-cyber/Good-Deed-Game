@@ -267,8 +267,9 @@
   </div>
 
   <!-- Navigation Tabs -->
-  <div class="tabs">
+<div class="tabs">
     <button class="tab-btn active" onclick="switchTab('profileTab', event)">🎮 หน้าหลัก</button>
+    <!-- แตะปุ่มนี้เพื่อไปหน้าส่งงานที่มีปุ่มเขียว -->
     <button class="tab-btn" onclick="switchTab('questTab', event)">🎯 เควส/ส่งงาน</button>
     <button class="tab-btn" onclick="switchTab('bagTab', event)">🎒 คลังเป้</button>
     <button class="tab-btn" onclick="switchTab('tradeTab', event)">🤝 เทรดของ</button>
@@ -554,14 +555,21 @@
     }
 
     function switchTab(tabId, event) {
+      // ซ่อนทุกแท็บ
+      document.querySelectorAll(".tab-content").forEach(c => c.style.display = "none");
       document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-      document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+      
+      // แสดงเฉพาะแท็บที่เลือก
+      const targetTab = document.getElementById(tabId);
+      if (targetTab) {
+        targetTab.style.display = "block";
+      }
+      
       if (event && event.currentTarget) {
         event.currentTarget.classList.add("active");
       }
-      document.getElementById(tabId).classList.add("active");
     }
-
+    
     function renderInventory() {
       const grid = document.getElementById("invGrid");
       grid.innerHTML = "";
