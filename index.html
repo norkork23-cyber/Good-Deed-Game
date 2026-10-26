@@ -404,11 +404,19 @@
       currentSelectedBingo = null;
     }
 
+    // ฟังก์ชันส่งรูปบิงโก (เวอร์ชันอัปเกรด ดักจับไฟล์ใหญ่ + แจ้ง Error ชัดเจน)
     async function submitBingoDeed() {
       const fileInput = document.getElementById("bingoImageInput");
       if (fileInput.files.length === 0) return alert("กรุณาเลือกรูปภาพหลักฐานก่อนนะคะ");
 
       const file = fileInput.files[0];
+      
+      // 🛑 1. ดักจับถ้ารูปภาพมีขนาดใหญ่เกิน 5MB (5 * 1024 * 1024 bytes)
+      if (file.size > 5242880) {
+        alert("⚠️ รูปภาพมีขนาดใหญ่เกินไป (เกิน 5MB)\nกรุณาครอบตัดรูป (Crop) หรือลดขนาดรูปก่อนส่งนะคะ");
+        return;
+      }
+
       const reader = new FileReader();
       
       document.getElementById("loader").style.display = "flex";
@@ -428,11 +436,21 @@
               imageBase64: reader.result
             })
           });
-          const result = await res.json();
           
+          // 🛑 2. อ่านค่าแบบ Text ก่อนเพื่อป้องกัน JSON Parse Error
+          const textResponse = await res.text();
+          let result;
+          try {
+            result = JSON.parse(textResponse);
+          } catch (err) {
+            console.error("Server Error:", textResponse);
+            throw new Error("ระบบหลังบ้านขัดข้อง (เซิร์ฟเวอร์ไม่ได้ตอบกลับเป็นรูปแบบที่ถูกต้อง)");
+          }
+
           if (result.status === "error") {
-            alert(result.message);
+            alert("❌ ปฏิเสธการส่ง: " + result.message);
           } else {
+            // บันทึกสถานะว่าทำช่องนี้ผ่านแล้ว
             let completed = JSON.parse(localStorage.getItem(`bingoCompleted_${currentUserId}`)) || [];
             if(!completed.includes(currentSelectedBingo.id)) {
               completed.push(currentSelectedBingo.id);
@@ -440,6 +458,8 @@
             }
             
             closeBingoModal();
+
+            // เช็กว่าทำครบ 9 ช่องหรือยัง
             if (completed.length >= 9) {
               alert("🎉 BINGO! ยินดีด้วยค่ะ น้องทำภารกิจครบ 9 ช่องแล้ว!\n\nรอคุณครูตรวจผล แล้วรับกระดานใหม่ไปลุยต่อได้เลย! ✨");
               localStorage.removeItem(`bingoCompleted_${currentUserId}`);
@@ -447,39 +467,24 @@
             } else {
               alert("📸 ส่งหลักฐานเรียบร้อยแล้ว! มาสะสมให้ครบ 9 ช่องกันเถอะ!");
             }
+            
             renderBingoBoard(); 
             await refreshAllData();
           }
         } catch (e) {
-          alert("ส่งข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง");
+          // 🛑 3. แจ้งเตือน Error สาเหตุที่แท้จริง
+          alert("เกิดข้อผิดพลาด: " + e.message + "\n\n(เช็กลิงก์ GAS_API_URL อีกครั้ง หรือลองส่งด้วยรูปอื่นดูครับ)");
         } finally {
           document.getElementById("loader").style.display = "none";
         }
       };
-      reader.readAsDataURL(file);
-    }
-    // =========================================================
 
-    async function initApp() {
-      const loader = document.getElementById("loader");
-      const loaderText = document.getElementById("loaderText");
-      try {
-        await liff.init({ liffId: MY_LIFF_ID });
-        if (!liff.isLoggedIn()) { liff.login({ redirectUri: window.location.href }); return; }
-        const profile = await liff.getProfile();
-        currentUserId = profile.userId; currentDisplayName = profile.displayName;
-        document.getElementById("uName").innerText = currentDisplayName;
-        
-        loaderText.innerText = "กำลังโหลดข้อมูล...";
-        await refreshAllData();
-        
-        // 🟢 เรียกสร้างกระดานบิงโกตอนเปิดแอป
-        renderBingoBoard(); 
-        
-        loader.style.display = "none";
-      } catch (err) {
-        loaderText.innerText = "เข้าสู่ระบบไม่สำเร็จ: " + err.message;
-      }
+      reader.onerror = function() {
+        document.getElementById("loader").style.display = "none";
+        alert("❌ เกิดข้อผิดพลาดในการอ่านไฟล์รูปภาพในเครื่องของคุณ");
+      };
+      
+      reader.readAsDataURL(file);
     }
 
     function switchTab(tabId, event) {
