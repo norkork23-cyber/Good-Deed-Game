@@ -51,54 +51,33 @@
     .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
     .stat-box { background: #0F172A; padding: 10px; border-radius: 10px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
 
-    /* ================= ⚔️ ฉากต่อสู้ RPG Battle Stage ================= */
-    .battle-arena {
-      background: linear-gradient(180deg, #1E1B4B 0%, #3B0764 70%, #111827 100%);
-      border: 2px solid #8B5CF6; border-radius: 16px; padding: 14px; margin-bottom: 14px;
-      position: relative; overflow: hidden; box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
-    }
-    .stage-field {
-      display: flex; justify-content: space-between; align-items: flex-end;
-      height: 110px; padding: 10px 20px; position: relative;
-      background: radial-gradient(ellipse at bottom, rgba(16, 185, 129, 0.15) 0%, transparent 70%);
-    }
+    /* ⚔️ ฉากต่อสู้ RPG Battle Stage */
+    .battle-arena { background: linear-gradient(180deg, #1E1B4B 0%, #3B0764 70%, #111827 100%); border: 2px solid #8B5CF6; border-radius: 16px; padding: 14px; margin-bottom: 14px; position: relative; overflow: hidden; box-shadow: 0 0 20px rgba(139, 92, 246, 0.4); }
+    .stage-field { display: flex; justify-content: space-between; align-items: flex-end; height: 110px; padding: 10px 20px; position: relative; background: radial-gradient(ellipse at bottom, rgba(16, 185, 129, 0.15) 0%, transparent 70%); }
     .fighter { font-size: 52px; position: relative; user-select: none; filter: drop-shadow(0 6px 8px rgba(0,0,0,0.6)); z-index: 10; }
-    
-    /* Idle Animations */
     .hero-sprite { animation: heroIdle 1.6s ease-in-out infinite; }
     .boss-sprite { font-size: 64px; animation: bossFloat 2.2s ease-in-out infinite; }
     @keyframes heroIdle { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-6px) scale(1.03); } }
     @keyframes bossFloat { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-10px) rotate(-3deg); } }
-
-    /* Action Animations */
     .hero-attack { animation: attackMove 0.5s ease-in-out !important; }
-    @keyframes attackMove { 
-      0% { transform: translateX(0); } 
-      40% { transform: translateX(130px) scale(1.2) rotate(15deg); } 
-      100% { transform: translateX(0); } 
-    }
+    @keyframes attackMove { 0% { transform: translateX(0); } 40% { transform: translateX(130px) scale(1.2) rotate(15deg); } 100% { transform: translateX(0); } }
     .boss-hit { animation: bossDamaged 0.5s ease-in-out !important; }
-    @keyframes bossDamaged {
-      0%, 100% { transform: translateX(0); filter: none; }
-      20% { transform: translateX(12px) scale(0.9); filter: brightness(2) sepia(1) hue-rotate(-50deg) saturate(5); }
-      40% { transform: translateX(-12px); }
-      60% { transform: translateX(8px); }
-      80% { transform: translateX(-8px); }
-    }
-    .floating-dmg {
-      position: absolute; right: 25px; top: 10px; font-size: 22px; font-weight: 800; color: #FF2E4C;
-      text-shadow: 0 2px 4px #000, 0 0 10px #FFBF00; pointer-events: none;
-      animation: floatUp 1s ease-out forwards; z-index: 20;
-    }
-    @keyframes floatUp {
-      0% { opacity: 1; transform: translateY(20px) scale(0.5); }
-      40% { opacity: 1; transform: translateY(-10px) scale(1.2); }
-      100% { opacity: 0; transform: translateY(-35px) scale(1); }
-    }
-
-    /* HP Bar */
+    @keyframes bossDamaged { 0%, 100% { transform: translateX(0); filter: none; } 20% { transform: translateX(12px) scale(0.9); filter: brightness(2) sepia(1) hue-rotate(-50deg) saturate(5); } 40% { transform: translateX(-12px); } 60% { transform: translateX(8px); } 80% { transform: translateX(-8px); } }
+    .floating-dmg { position: absolute; right: 25px; top: 10px; font-size: 22px; font-weight: 800; color: #FF2E4C; text-shadow: 0 2px 4px #000, 0 0 10px #FFBF00; pointer-events: none; animation: floatUp 1s ease-out forwards; z-index: 20; }
+    @keyframes floatUp { 0% { opacity: 1; transform: translateY(20px) scale(0.5); } 40% { opacity: 1; transform: translateY(-10px) scale(1.2); } 100% { opacity: 0; transform: translateY(-35px) scale(1); } }
     .hp-bar { background: #31135E; height: 14px; border-radius: 8px; overflow: hidden; margin: 8px 0; border: 1px solid #A855F7; }
     .hp-fill { background: linear-gradient(90deg, var(--red), var(--orange)); height: 100%; width: 100%; transition: width 0.5s ease; }
+
+    /* ================= 🎯 BINGO BOARD ================= */
+    .bingo-header { text-align: center; margin-bottom: 12px; }
+    .bingo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
+    .bingo-cell { background: #1E293B; border: 2px dashed #8B5CF6; border-radius: 14px; padding: 10px 4px; text-align: center; cursor: pointer; aspect-ratio: 1 / 1; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: all 0.2s; box-shadow: inset 0 0 10px rgba(0,0,0,0.2); }
+    .bingo-cell:active { transform: scale(0.95); }
+    .bingo-cell .icon { font-size: 28px; margin-bottom: 6px; }
+    .bingo-cell .text { font-size: 11px; color: #E2E8F0; line-height: 1.3; font-weight: 500; }
+    .bingo-cell.completed { background: #064E3B; border: 2px solid #10B981; box-shadow: 0 0 12px rgba(16, 185, 129, 0.4); }
+    .bingo-cell.completed .icon { filter: grayscale(0%); }
+    .bingo-cell.completed::after { content: '✔ ส่งแล้ว'; position: absolute; background: #10B981; color: #fff; font-size: 9px; padding: 2px 6px; border-radius: 10px; margin-top: 40px; font-weight: bold; }
 
     /* Inputs / Buttons */
     input, textarea, select { width: 100%; padding: 11px 12px; background: #0F172A; border: 1px solid var(--border); border-radius: 10px; color: #fff; font-size: 13px; margin-top: 4px; margin-bottom: 12px; box-sizing: border-box; }
@@ -115,51 +94,6 @@
     /* Modal */
     .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(6px); z-index: 100; padding: 20px 14px; }
     .modal-box { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px; max-height: 90vh; overflow-y: auto; position: relative; top: 50%; transform: translateY(-50%); }
-    /* ================= 🎯 BINGO BOARD ================= */
-    .bingo-header { text-align: center; margin-bottom: 12px; }
-    .bingo-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-bottom: 15px;
-    }
-    .bingo-cell {
-      background: #1E293B;
-      border: 2px dashed #8B5CF6;
-      border-radius: 14px;
-      padding: 10px 4px;
-      text-align: center;
-      cursor: pointer;
-      aspect-ratio: 1 / 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      transition: all 0.2s;
-      box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
-    }
-    .bingo-cell:active { transform: scale(0.95); }
-    .bingo-cell .icon { font-size: 28px; margin-bottom: 6px; }
-    .bingo-cell .text { font-size: 11px; color: #E2E8F0; line-height: 1.3; font-weight: 500; }
-    
-    /* สถานะเมื่อส่งแล้ว (เก็บสถานะชั่วคราวในเครื่อง) */
-    .bingo-cell.completed {
-      background: #064E3B;
-      border: 2px solid #10B981;
-      box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
-    }
-    .bingo-cell.completed .icon { filter: grayscale(0%); }
-    .bingo-cell.completed::after {
-      content: '✔ ส่งแล้ว';
-      position: absolute;
-      background: #10B981;
-      color: #fff;
-      font-size: 9px;
-      padding: 2px 6px;
-      border-radius: 10px;
-      margin-top: 40px;
-      font-weight: bold;
-    }
   </style>
 </head>
 <body>
@@ -173,7 +107,7 @@
   <!-- Navigation Tabs -->
   <div class="tabs">
     <button class="tab-btn active" onclick="switchTab('profileTab', event)">🎮 หน้าหลัก</button>
-    <button class="tab-btn" onclick="switchTab('questTab', event)">🎯 เควส/ส่งงาน</button>
+    <button class="tab-btn" onclick="switchTab('questTab', event)">🎯 บิงโกภารกิจ</button>
     <button class="tab-btn" onclick="switchTab('bagTab', event)">🎒 คลังเป้</button>
     <button class="tab-btn" onclick="switchTab('tradeTab', event)">🤝 เทรดของ</button>
   </div>
@@ -188,7 +122,6 @@
       <div style="font-size: 18px; font-weight: 700; margin-top: 6px;" id="uName">-</div>
       <div style="font-size: 12px; color: var(--dim);" id="uSchool">-</div>
       <div style="font-size: 11px; color: #FBBF24; margin-top: 4px;" id="uEquip">🛡️ ไม่ได้สวมใส่อุปกรณ์</div>
-
       <div class="stats-grid">
         <div class="stat-box">
           <div style="font-size: 11px; color: var(--dim);">แต้มสะสมสุทธิ</div>
@@ -208,31 +141,23 @@
         <span id="bossHpText">0 / 2000 HP</span>
       </div>
       <div class="hp-bar"><div class="hp-fill" id="bossHpFill"></div></div>
-      
-      <!-- เวทีตัวละครขยับสู้กัน -->
       <div class="stage-field" id="stageField">
-        <!-- ฝั่งผู้เล่น (จะเปลี่ยนร่างตามเลเวล) -->
         <div style="text-align: center;">
           <div class="fighter hero-sprite" id="heroSprite">🌱</div>
           <span style="font-size: 10px; background: rgba(0,0,0,0.6); padding: 2px 6px; border-radius: 6px; color: #34D399;" id="heroClassLabel">นักเรียนฝึกหัด</span>
         </div>
-
         <div style="font-size: 20px; color: #FBBF24; align-self: center; opacity: 0.7;">⚡ VS ⚡</div>
-
-        <!-- ฝั่งบอส -->
         <div style="text-align: center;">
           <div class="fighter boss-sprite" id="bossSprite">👾</div>
           <span style="font-size: 10px; background: rgba(239,68,68,0.3); padding: 2px 6px; border-radius: 6px; color: #FCA5A5;">BOSS</span>
         </div>
       </div>
-
       <div style="display: flex; justify-content: space-between; font-size: 11px; color: #D8B4FE; margin-top: 6px;">
         <span id="bossDmgText">ดาเมจรวม: 0</span>
         <span id="bossPctText">100%</span>
       </div>
     </div>
 
-    <!-- Redeem Event Code -->
     <div class="card">
       <div class="title">🎁 เติมรหัสกิจกรรมพิเศษ</div>
       <input type="text" id="eventCodeInput" placeholder="พิมพ์โค้ด เช่น SMART2026">
@@ -240,21 +165,21 @@
     </div>
   </div>
 
- <!-- ==================== TAB 2: BINGO SUBMISSION ==================== -->
+  <!-- ==================== TAB 2: BINGO SUBMISSION ==================== -->
   <div id="questTab" class="tab-content">
     <div class="card" style="border-color: #8B5CF6; background: linear-gradient(180deg, #1E1B4B 0%, #151D2F 100%);">
       <div class="bingo-header">
-        <h3 style="color: #C084FC; font-size: 18px;">🎯 บิงโกความดี ประจำเดือน</h3>
-        <p style="font-size: 11px; color: #94A3B8;">แตะที่ภารกิจเพื่อส่งรูปหลักฐาน (จำกัดวันละ 5 ครั้ง)</p>
+        <h3 style="color: #C084FC; font-size: 18px;">🎯 บิงโกความดี</h3>
+        <p style="font-size: 11px; color: #94A3B8;">แตะที่ภารกิจเพื่ออัปโหลดรูป (จำกัด 5 ครั้ง/วัน)</p>
       </div>
       
       <!-- กระดานบิงโก 3x3 -->
       <div class="bingo-grid" id="bingoBoard">
-        <!-- จะใช้ JavaScript สร้างตารางอัตโนมัติ -->
+        <!-- JS จะสร้างตรงนี้อัตโนมัติ -->
       </div>
       
       <div style="text-align: center; margin-top: 10px;">
-        <span style="font-size: 12px; color: #34D399; font-weight: 600;">✨ ทำครบ 9 ช่อง รับไอเทมพิเศษสิ้นเดือน! ✨</span>
+        <span style="font-size: 12px; color: #34D399; font-weight: 600;">✨ ทำครบ 9 ช่อง รับกระดานใหม่ไปลุยต่อ! ✨</span>
       </div>
     </div>
     <div style="height: 120px;"></div>
@@ -267,19 +192,16 @@
         <div style="font-size: 16px; font-weight: 700; color: #38BDF8;">📸 ส่งหลักฐานภารกิจ</div>
         <button onclick="closeBingoModal()" style="background: none; border: none; color: #fff; font-size: 16px; cursor: pointer;">✕</button>
       </div>
-      
       <div style="text-align: center; margin-bottom: 16px; padding: 10px; background: #0F172A; border-radius: 12px;">
         <div id="bingoTaskIcon" style="font-size: 32px; margin-bottom: 5px;">-</div>
         <div id="bingoTaskName" style="font-size: 14px; font-weight: 600; color: #E2E8F0;">-</div>
       </div>
-
       <label style="font-size: 12px; color: var(--dim); display:block;">เลือกรูปภาพหลักฐาน:</label>
       <input type="file" id="bingoImageInput" accept="image/*" style="margin-bottom: 16px;">
-
       <button type="button" class="btn-main" onclick="submitBingoDeed()">🚀 ส่งให้คุณครูตรวจสอบ</button>
     </div>
   </div>
-  
+
   <!-- ==================== TAB 3: INVENTORY ==================== -->
   <div id="bagTab" class="tab-content">
     <div class="card">
@@ -305,7 +227,7 @@
     </div>
   </div>
 
-  <!-- ==================== MODALS ==================== -->
+  <!-- Modal Items & Registration -->
   <div id="itemModal" class="modal">
     <div class="modal-box">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
@@ -322,18 +244,16 @@
     <div class="modal-box">
       <h3 style="font-size: 16px; font-weight: 700; color: #38BDF8; margin-bottom: 6px;">📝 ลงทะเบียนผู้กล้า</h3>
       <p style="font-size: 12px; color: var(--dim); margin-bottom: 12px;">เลือกโรงเรียนและระดับชั้นก่อนเริ่มเล่นนะคะ</p>
-      
       <label style="font-size: 12px; color: var(--dim); display:block;">🏫 โรงเรียน:</label>
       <select id="regSchool">
-        <option value="โรงเรียนเทศบาล 1">โรงเรียนเทศบาล 1</option>
-        <option value="โรงเรียนบ้านบึง">โรงเรียนบ้านบึง</option>
-        <option value="โรงเรียนวัดดอน">โรงเรียนวัดดอน</option>
+        <option value="ชุมชนชากกระปอก">ชุมชนชากกระปอก</option> <option value="ชุมชนไร่หนึ่ง">ชุมชนไร่หนึ่ง</option> <option value="ชุมชนเศรษฐีในฝัน">ชุมชนเศรษฐีในฝัน</option> <option value="ชุมชนหนองขาม">ชุมชนหนองขาม</option>
       </select>
-
       <label style="font-size: 12px; color: var(--dim); display:block;">📚 ระดับชั้น:</label>
       <select id="regGrade">
         <option value="ป.4">ป.4</option> <option value="ป.5">ป.5</option> <option value="ป.6">ป.6</option>
         <option value="ม.1">ม.1</option> <option value="ม.2">ม.2</option> <option value="ม.3">ม.3</option>
+        <option value="ม.4">ม.4</option> <option value="ม.5">ม.5</option> <option value="ม.6">ม.6</option>
+        <option value="อื่นๆ">อื่นๆ</option> 
       </select>
       <button class="btn-main" onclick="submitRegistration()">ยืนยันข้อมูล ✨</button>
     </div>
@@ -349,7 +269,6 @@
     let currentUserId = "", currentDisplayName = "", currentSchool = "", currentEquippedId = "";
     let myInventory = [], selectedModalItem = null;
 
-    // 🎬 อัปเดตรูปร่างตัวละครตามเลเวล
     const avatarEvolution = {
       1: { sprite: "🌱", title: "นักเรียนฝึกหัด" },
       2: { sprite: "🌟", title: "นักรบคุณธรรม" },
@@ -358,227 +277,7 @@
       5: { sprite: "✨", title: "ตำนานผู้กล้า" }
     };
 
-    async function initApp() {
-      const loader = document.getElementById("loader");
-      const loaderText = document.getElementById("loaderText");
-      try {
-        await liff.init({ liffId: MY_LIFF_ID });
-        if (!liff.isLoggedIn()) { liff.login({ redirectUri: window.location.href }); return; }
-        const profile = await liff.getProfile();
-        currentUserId = profile.userId; currentDisplayName = profile.displayName;
-        document.getElementById("uName").innerText = currentDisplayName;
-        
-        loaderText.innerText = "กำลังโหลดข้อมูล...";
-        await refreshAllData(); renderBingoBoard();
-        loader.style.display = "none";
-      } catch (err) {
-        loaderText.innerText = "เข้าสู่ระบบไม่สำเร็จ: " + err.message;
-      }
-    }
-
-    function switchTab(tabId, event) {
-      document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
-      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-      const target = document.getElementById(tabId);
-      if (target) target.classList.add("active");
-      if (event && event.currentTarget) event.currentTarget.classList.add("active");
-    }
-
-    // 🎬 ฟังก์ชันแอนิเมชันปาของใส่บอส
-    function playAttackAnimation(damageAmount) {
-      const hero = document.getElementById("heroSprite");
-      const boss = document.getElementById("bossSprite");
-      const stage = document.getElementById("stageField");
-
-      if (!hero || !boss || !stage) return;
-
-      hero.classList.remove("hero-attack");
-      void hero.offsetWidth;
-      hero.classList.add("hero-attack");
-
-      setTimeout(() => {
-        boss.classList.remove("boss-hit");
-        void boss.offsetWidth;
-        boss.classList.add("boss-hit");
-
-        const dmgEl = document.createElement("div");
-        dmgEl.className = "floating-dmg";
-        dmgEl.innerText = `💥 -${damageAmount} HP!`;
-        stage.appendChild(dmgEl);
-
-        setTimeout(() => dmgEl.remove(), 1000);
-      }, 200);
-    }
-
-    async function refreshAllData() {
-      if (!currentUserId) return;
-      try {
-        const res = await fetch(`${GAS_API_URL}?action=getInitialData&userId=${encodeURIComponent(currentUserId)}`);
-        const data = await res.json();
-
-        if (data.status === "success") {
-          const u = data.user;
-          currentSchool = u.school; currentEquippedId = u.equippedItem;
-
-          if (!u.isRegistered || !u.school || u.school === "ทั่วไป" || u.school === "-") {
-            document.getElementById("registerModal").style.display = "block";
-          }
-
-          document.getElementById("uLevel").innerText = `Lv.${u.level}`;
-          document.getElementById("uBadge").innerText = u.badge;
-          document.getElementById("uSchool").innerText = `🏫 ${u.school || "-"}`;
-          document.getElementById("uPoints").innerText = `${u.points} แต้ม`;
-          document.getElementById("uStreak").innerText = `🔥 ${u.streak} วัน`;
-          document.getElementById("questTitle").innerText = u.currentQuest || "ไม่มีเควส";
-          document.getElementById("questStatusText").innerText = u.questSubmitted ? "✅ ส่งเควสสัปดาห์นี้แล้ว" : "⏳ ยังไม่ได้ส่งเควส";
-
-          // อัปเดตร่างอวตารผู้กล้าตามเลเวล (1 ถึง 5)
-          const lvlKey = u.level > 5 ? 5 : u.level;
-          document.getElementById("heroSprite").innerText = avatarEvolution[lvlKey].sprite;
-          document.getElementById("heroClassLabel").innerText = avatarEvolution[lvlKey].title;
-
-          myInventory = data.inventory || [];
-          renderInventory();
-          populateTradeSelect();
-
-          const b = data.boss;
-          if (b) {
-            document.getElementById("bossName").innerText = b.name;
-            document.getElementById("bossHpText").innerText = `${b.currentHp} / ${b.maxHp} HP`;
-            document.getElementById("bossDmgText").innerText = `ดาเมจรวม: ${b.totalDamage}`;
-            const pct = Math.max(0, Math.round((b.currentHp / b.maxHp) * 100));
-            document.getElementById("bossHpFill").style.width = `${pct}%`;
-            document.getElementById("bossPctText").innerText = `${pct}%`;
-          }
-          renderTrades(data.trades || []);
-        }
-      } catch (err) { console.error("Error:", err); }
-    }
-
-    function renderInventory() {
-      const grid = document.getElementById("invGrid"); grid.innerHTML = "";
-      let count = 0; myInventory.forEach(i => count += i.qty);
-      document.getElementById("bagCount").innerText = `${count} ชิ้น`;
-
-      const eq = myInventory.find(i => i.id === currentEquippedId);
-      document.getElementById("uEquip").innerText = eq ? `🛡️ สวมใส่: ${eq.name}` : "🛡️ ไม่ได้สวมใส่อุปกรณ์";
-
-      if (myInventory.length === 0) {
-        grid.innerHTML = "<p style='grid-column:span 3; font-size:12px; color:var(--dim); text-align:center;'>กระเป๋าว่างเปล่า</p>"; return;
-      }
-      myInventory.forEach(item => {
-        const d = document.createElement("div"); d.className = `slot ${item.rarity}`;
-        d.onclick = () => openItemModal(item);
-        const iconMatch = item.name.match(/^(\p{Emoji}|\p{Extended_Pictographic})/u);
-        const icon = iconMatch ? iconMatch[0] : "📦";
-        const cleanName = item.name.replace(icon, "").trim();
-        d.innerHTML = `<div class="slot-qty">x${item.qty}</div><div style="font-size:24px; margin:4px 0;">${icon}</div><div style="font-size:11px; line-height:1.2;">${cleanName || item.name}</div>`;
-        grid.appendChild(d);
-      });
-    }
-
-    function renderTrades(trades) {
-      const c = document.getElementById("tradeList"); c.innerHTML = "";
-      if (!trades.length) { c.innerHTML = "<p style='font-size:12px; color:var(--dim);'>ยังไม่มีห้องแลกของ</p>"; return; }
-      trades.forEach(t => {
-        const isMe = t.senderId === currentUserId;
-        const b = document.createElement("div");
-        b.style = "background:#0F172A; border:1px solid var(--border); padding:10px; border-radius:10px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;";
-        b.innerHTML = `<div><div style="font-size:13px; font-weight:700;">${t.senderItemName}</div><div style="font-size:11px; color:var(--dim);">รหัส: ${t.tradeCode}</div></div>
-          <div>${isMe ? '<span style="font-size:11px; color:var(--dim);">ห้องคุณ</span>' : `<button class="btn-main" style="padding:6px 12px; font-size:11px; margin-top:0;" onclick="acceptTradePrompt('${t.tradeCode}', '${t.senderItemName}')">แลก</button>`}</div>`;
-        c.appendChild(b);
-      });
-    }
-
-    async function submitRegistration() {
-      const school = document.getElementById("regSchool").value;
-      const grade = document.getElementById("regGrade").value;
-      document.getElementById("loader").style.display = "flex";
-      try {
-        await fetch(GAS_API_URL, { method: "POST", body: JSON.stringify({ action: "registerUser", userId: currentUserId, displayName: currentDisplayName, school: school, grade: grade }) });
-        document.getElementById("registerModal").style.display = "none";
-        alert(`🎉 ลงทะเบียนสำเร็จ!`);
-        await refreshAllData();
-      } catch (e) { alert("เกิดข้อผิดพลาด"); } finally { document.getElementById("loader").style.display = "none"; }
-    }
-
-    function openItemModal(item) {
-      selectedModalItem = item;
-      document.getElementById("modalItemName").innerText = item.name;
-      document.getElementById("modalItemDesc").innerText = `ระดับ: ${item.rarity} | มีทั้งหมด: x${item.qty} ชิ้น`;
-      document.getElementById("itemModal").style.display = "block";
-    }
-    function closeModal() { document.getElementById("itemModal").style.display = "none"; }
-
-    async function actionEquip() {
-      closeModal(); document.getElementById("loader").style.display = "flex";
-      try {
-        await fetch(GAS_API_URL, { method: "POST", body: JSON.stringify({ action: "equipItem", userId: currentUserId, itemId: selectedModalItem.id }) });
-        await refreshAllData();
-        alert(`สวมใส่ [${selectedModalItem.name}] สำเร็จ!`);
-      } catch (e) { alert("เกิดข้อผิดพลาด"); } finally { document.getElementById("loader").style.display = "none"; }
-    }
-
-    // 💥 ปาไอเทมใส่บอสและรันแอนิเมชัน
-    async function actionSacrifice() {
-      if (!confirm(`ต้องการปา [${selectedModalItem.name}] 1 ชิ้นใส่บอสใช่หรือไม่?`)) return;
-      closeModal();
-      document.getElementById("loader").style.display = "flex";
-      try {
-        const res = await fetch(GAS_API_URL, {
-          method: "POST",
-          body: JSON.stringify({ action: "sacrificeItem", userId: currentUserId, displayName: currentDisplayName, itemId: selectedModalItem.id })
-        });
-        const data = await res.json();
-        await refreshAllData();
-        document.getElementById("loader").style.display = "none";
-        
-        if (data.status === "success") {
-          // สลับหน้าจอมาที่หน้าหลักเพื่อให้เห็นฉากตีบอส
-          switchTab('profileTab');
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-          
-          // รันแอนิเมชัน
-          const dmg = data.damageDealt || 50;
-          playAttackAnimation(dmg);
-
-          // โชว์แจ้งเตือนช้าลงหน่อยเพื่อให้เด็กดูแอนิเมชันฟาดบอสเสร็จก่อน
-          setTimeout(() => {
-            alert(`💥 ปา [${data.itemName}] สำเร็จ! บอสโดนดาเมจ -${dmg} HP!`);
-          }, 1100);
-
-        } else {
-          alert(data.message);
-        }
-      } catch (e) {
-        document.getElementById("loader").style.display = "none";
-        alert("เกิดข้อผิดพลาดในการส่งข้อมูล");
-      }
-    }
-
-    async function submitGoodDeed() {
-      const isQuest = document.getElementById("submitType").value === "quest";
-      const story = document.getElementById("storyInput").value.trim();
-      const fileInput = document.getElementById("imageInput");
-      if (!story || fileInput.files.length === 0) return alert("กรุณาใส่เรื่องราวและรูปภาพ");
-
-      const file = fileInput.files[0];
-      const reader = new FileReader();
-      document.getElementById("loader").style.display = "flex";
-
-      reader.onload = async function() {
-        try {
-          const res = await fetch(GAS_API_URL, { method: "POST", body: JSON.stringify({ action: "submitGoodDeed", userId: currentUserId, displayName: currentDisplayName, school: currentSchool, isQuest: isQuest, story: story, imageBase64: reader.result }) });
-          const result = await res.json();
-          if (result.status === "error") alert(result.message);
-          else { document.getElementById("storyInput").value = ""; fileInput.value = ""; alert(result.message); await refreshAllData(); }
-        } catch (e) { alert("เกิดข้อผิดพลาด"); } finally { document.getElementById("loader").style.display = "none"; }
-      };
-      reader.readAsDataURL(file);
-    }
-    
-    // ==================== ระบบ BINGO สุ่มอัตโนมัติแบบอนันต์ ====================
-    // 1. คลังภารกิจทั้งหมด (ใส่ไว้เยอะๆ ได้เลย ระบบจะสุ่มมาทีละ 9 ช่อง)
+    // ==================== BINGO LOGIC ====================
     const bingoTaskPool = [
       { id: "b1", icon: "🧹", name: "กวาดบ้าน/ถูบ้าน" },
       { id: "b2", icon: "🍽️", name: "ล้างจานให้ครอบครัว" },
@@ -586,54 +285,41 @@
       { id: "b4", icon: "🌱", name: "รดน้ำต้นไม้" },
       { id: "b5", icon: "🗑️", name: "แยกขยะ/ทิ้งขยะ" },
       { id: "b6", icon: "📚", name: "อ่านหนังสือ 15 นาที" },
-      { id: "b7", icon: "👟", name: "จัดรองเท้าให้เป็นระเบียบ" },
-      { id: "b8", icon: "💧", name: "ดื่มน้ำเปล่าหมดแก้ว" },
-      { id: "b9", icon: "❤️", name: "ช่วยเหลืองานคุณครู" },
-      { id: "b10", icon: "👚", name: "พับผ้า/เก็บเสื้อผ้า" },
-      { id: "b11", icon: "🔌", name: "ปิดไฟ/ถอดปลั๊กเมื่อไม่ใช้" },
-      { id: "b12", icon: "🐶", name: "ให้อาหารสัตว์เลี้ยง" },
-      { id: "b13", icon: "👨‍👩‍👧", name: "นวดให้คุณพ่อคุณแม่" },
-      { id: "b14", icon: "📝", name: "ทำการบ้านเสร็จตรงเวลา" },
-      { id: "b15", icon: "🚴‍♂️", name: "ออกกำลังกาย 15 นาที" }
+      { id: "b7", icon: "👟", name: "จัดรองเท้า" },
+      { id: "b8", icon: "💧", name: "ดื่มน้ำเปล่า" },
+      { id: "b9", icon: "❤️", name: "ช่วยงานพ่อแม่" },
+      { id: "b10", icon: "👚", name: "พับผ้า/เก็บผ้า" },
+      { id: "b11", icon: "🔌", name: "ปิดไฟ/ถอดปลั๊ก" },
+      { id: "b12", icon: "🐶", name: "ให้อาหารสัตว์" },
+      { id: "b13", icon: "👨‍👩‍👧", name: "นวดให้พ่อแม่" },
+      { id: "b14", icon: "📝", name: "ทำการบ้านเสร็จ" },
+      { id: "b15", icon: "🚴‍♂️", name: "ออกกำลังกาย" }
     ];
-
     let currentSelectedBingo = null;
 
-    // 2. ฟังก์ชันสร้างกระดานและสุ่มภารกิจ
     function renderBingoBoard() {
       const board = document.getElementById("bingoBoard");
       if(!board) return;
       board.innerHTML = "";
       
-      // ตรวจสอบว่ามีกระดานปัจจุบันอยู่หรือไม่ ถ้าไม่มีให้สุ่มใหม่
       let currentBoard = JSON.parse(localStorage.getItem(`bingoBoard_${currentUserId}`));
       
       if (!currentBoard || currentBoard.length !== 9) {
-        // สุ่มสลับตำแหน่งภารกิจ (Shuffle) แล้วดึงมาแค่ 9 อัน
         let shuffled = bingoTaskPool.sort(() => 0.5 - Math.random());
         currentBoard = shuffled.slice(0, 9);
-        // บันทึกกระดานนี้ไว้ในเครื่องเด็ก จะได้ไม่เปลี่ยนไปมาเวลาเด็กรีเฟรชเว็บ
         localStorage.setItem(`bingoBoard_${currentUserId}`, JSON.stringify(currentBoard));
       }
 
-      // ดึงข้อมูลว่าเด็กทำภารกิจไหนเสร็จไปแล้วบ้าง
       const completedTasks = JSON.parse(localStorage.getItem(`bingoCompleted_${currentUserId}`)) || [];
 
-      // วาดกระดาน 9 ช่อง
       currentBoard.forEach(task => {
         const isCompleted = completedTasks.includes(task.id);
         const cell = document.createElement("div");
         cell.className = `bingo-cell ${isCompleted ? 'completed' : ''}`;
         
-        // ถ้าทำเสร็จแล้ว ไม่ต้องให้กดอัปโหลดซ้ำ
-        if (!isCompleted) {
-          cell.onclick = () => openBingoModal(task);
-        }
+        if (!isCompleted) cell.onclick = () => openBingoModal(task);
         
-        cell.innerHTML = `
-          <div class="icon">${task.icon}</div>
-          <div class="text">${task.name}</div>
-        `;
+        cell.innerHTML = `<div class="icon">${task.icon}</div><div class="text">${task.name}</div>`;
         board.appendChild(cell);
       });
     }
@@ -651,7 +337,6 @@
       currentSelectedBingo = null;
     }
 
-    // 3. ฟังก์ชันส่งรูปและตรวจเช็กว่าทำ "ครบ 9 ช่อง" หรือยัง
     async function submitBingoDeed() {
       const fileInput = document.getElementById("bingoImageInput");
       if (fileInput.files.length === 0) return alert("กรุณาเลือกรูปภาพหลักฐานก่อนนะคะ");
@@ -681,7 +366,6 @@
           if (result.status === "error") {
             alert(result.message);
           } else {
-            // บันทึกสถานะว่าทำช่องนี้ผ่านแล้ว
             let completed = JSON.parse(localStorage.getItem(`bingoCompleted_${currentUserId}`)) || [];
             if(!completed.includes(currentSelectedBingo.id)) {
               completed.push(currentSelectedBingo.id);
@@ -689,19 +373,13 @@
             }
             
             closeBingoModal();
-
-            // 🔥 เช็กว่าทำครบ 9 ช่อง (เคลียร์กระดาน) หรือยัง?
             if (completed.length >= 9) {
               alert("🎉 BINGO! ยินดีด้วยค่ะ น้องทำภารกิจครบ 9 ช่องแล้ว!\n\nรอคุณครูตรวจผล แล้วรับกระดานใหม่ไปลุยต่อได้เลย! ✨");
-              
-              // ล้างข้อมูลกระดานเดิมทิ้ง เพื่อให้ฟังก์ชัน renderBingoBoard สุ่มตารางใหม่
               localStorage.removeItem(`bingoCompleted_${currentUserId}`);
               localStorage.removeItem(`bingoBoard_${currentUserId}`);
             } else {
               alert("📸 ส่งหลักฐานเรียบร้อยแล้ว! มาสะสมให้ครบ 9 ช่องกันเถอะ!");
             }
-            
-            // รีเฟรชกระดาน
             renderBingoBoard(); 
             await refreshAllData();
           }
@@ -713,48 +391,149 @@
       };
       reader.readAsDataURL(file);
     }
-    
-    async function submitEventCode() {
-      const code = document.getElementById("eventCodeInput").value.trim();
-      if (!code) return;
-      document.getElementById("loader").style.display = "flex";
+    // =========================================================
+
+    async function initApp() {
+      const loader = document.getElementById("loader");
+      const loaderText = document.getElementById("loaderText");
       try {
-        const res = await fetch(GAS_API_URL, { method: "POST", body: JSON.stringify({ action: "redeemCode", userId: currentUserId, displayName: currentDisplayName, code: code }) });
-        const data = await res.json();
+        await liff.init({ liffId: MY_LIFF_ID });
+        if (!liff.isLoggedIn()) { liff.login({ redirectUri: window.location.href }); return; }
+        const profile = await liff.getProfile();
+        currentUserId = profile.userId; currentDisplayName = profile.displayName;
+        document.getElementById("uName").innerText = currentDisplayName;
+        
+        loaderText.innerText = "กำลังโหลดข้อมูล...";
         await refreshAllData();
-        if (data.status === "success") { document.getElementById("eventCodeInput").value = ""; alert(`🎉 เติมสำเร็จ! ได้รับ [${data.itemName}]`); }
-        else alert(data.message);
-      } catch (e) { alert("เกิดข้อผิดพลาด"); } finally { document.getElementById("loader").style.display = "none"; }
+        
+        // 🟢 เรียกสร้างกระดานบิงโกตอนเปิดแอป
+        renderBingoBoard(); 
+        
+        loader.style.display = "none";
+      } catch (err) {
+        loaderText.innerText = "เข้าสู่ระบบไม่สำเร็จ: " + err.message;
+      }
+    }
+
+    function switchTab(tabId, event) {
+      document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      const target = document.getElementById(tabId);
+      if (target) target.classList.add("active");
+      if (event && event.currentTarget) event.currentTarget.classList.add("active");
+    }
+
+    function playAttackAnimation(damageAmount) {
+      const hero = document.getElementById("heroSprite"), boss = document.getElementById("bossSprite"), stage = document.getElementById("stageField");
+      if (!hero || !boss || !stage) return;
+      hero.classList.remove("hero-attack"); void hero.offsetWidth; hero.classList.add("hero-attack");
+      setTimeout(() => {
+        boss.classList.remove("boss-hit"); void boss.offsetWidth; boss.classList.add("boss-hit");
+        const dmgEl = document.createElement("div"); dmgEl.className = "floating-dmg"; dmgEl.innerText = `💥 -${damageAmount} HP!`;
+        stage.appendChild(dmgEl); setTimeout(() => dmgEl.remove(), 1000);
+      }, 200);
+    }
+
+    async function refreshAllData() {
+      if (!currentUserId) return;
+      try {
+        const res = await fetch(`${GAS_API_URL}?action=getInitialData&userId=${encodeURIComponent(currentUserId)}`);
+        const data = await res.json();
+        if (data.status === "success") {
+          const u = data.user;
+          currentSchool = u.school; currentEquippedId = u.equippedItem;
+          if (!u.isRegistered || !u.school || u.school === "ทั่วไป" || u.school === "-") { document.getElementById("registerModal").style.display = "block"; }
+          document.getElementById("uLevel").innerText = `Lv.${u.level}`;
+          document.getElementById("uBadge").innerText = u.badge;
+          document.getElementById("uSchool").innerText = `🏫 ${u.school || "-"}`;
+          document.getElementById("uPoints").innerText = `${u.points} แต้ม`;
+          document.getElementById("uStreak").innerText = `🔥 ${u.streak} วัน`;
+          const lvlKey = u.level > 5 ? 5 : u.level;
+          document.getElementById("heroSprite").innerText = avatarEvolution[lvlKey].sprite;
+          document.getElementById("heroClassLabel").innerText = avatarEvolution[lvlKey].title;
+          myInventory = data.inventory || []; renderInventory(); populateTradeSelect();
+          const b = data.boss;
+          if (b) {
+            document.getElementById("bossName").innerText = b.name; document.getElementById("bossHpText").innerText = `${b.currentHp} / ${b.maxHp} HP`;
+            document.getElementById("bossDmgText").innerText = `ดาเมจรวม: ${b.totalDamage}`;
+            const pct = Math.max(0, Math.round((b.currentHp / b.maxHp) * 100));
+            document.getElementById("bossHpFill").style.width = `${pct}%`; document.getElementById("bossPctText").innerText = `${pct}%`;
+          }
+          renderTrades(data.trades || []);
+        }
+      } catch (err) { console.error("Error:", err); }
+    }
+
+    function renderInventory() {
+      const grid = document.getElementById("invGrid"); grid.innerHTML = "";
+      let count = 0; myInventory.forEach(i => count += i.qty);
+      document.getElementById("bagCount").innerText = `${count} ชิ้น`;
+      const eq = myInventory.find(i => i.id === currentEquippedId);
+      document.getElementById("uEquip").innerText = eq ? `🛡️ สวมใส่: ${eq.name}` : "🛡️ ไม่ได้สวมใส่อุปกรณ์";
+      if (myInventory.length === 0) { grid.innerHTML = "<p style='grid-column:span 3; font-size:12px; color:var(--dim); text-align:center;'>กระเป๋าว่างเปล่า</p>"; return; }
+      myInventory.forEach(item => {
+        const d = document.createElement("div"); d.className = `slot ${item.rarity}`; d.onclick = () => openItemModal(item);
+        const iconMatch = item.name.match(/^(\p{Emoji}|\p{Extended_Pictographic})/u); const icon = iconMatch ? iconMatch[0] : "📦";
+        const cleanName = item.name.replace(icon, "").trim();
+        d.innerHTML = `<div class="slot-qty">x${item.qty}</div><div style="font-size:24px; margin:4px 0;">${icon}</div><div style="font-size:11px; line-height:1.2;">${cleanName || item.name}</div>`;
+        grid.appendChild(d);
+      });
+    }
+
+    function renderTrades(trades) {
+      const c = document.getElementById("tradeList"); c.innerHTML = "";
+      if (!trades.length) { c.innerHTML = "<p style='font-size:12px; color:var(--dim);'>ยังไม่มีห้องแลกของ</p>"; return; }
+      trades.forEach(t => {
+        const isMe = t.senderId === currentUserId; const b = document.createElement("div");
+        b.style = "background:#0F172A; border:1px solid var(--border); padding:10px; border-radius:10px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;";
+        b.innerHTML = `<div><div style="font-size:13px; font-weight:700;">${t.senderItemName}</div><div style="font-size:11px; color:var(--dim);">รหัส: ${t.tradeCode}</div></div><div>${isMe ? '<span style="font-size:11px; color:var(--dim);">ห้องคุณ</span>' : `<button class="btn-main" style="padding:6px 12px; font-size:11px; margin-top:0;" onclick="acceptTradePrompt('${t.tradeCode}', '${t.senderItemName}')">แลก</button>`}</div>`;
+        c.appendChild(b);
+      });
+    }
+
+    async function submitRegistration() {
+      const school = document.getElementById("regSchool").value, grade = document.getElementById("regGrade").value;
+      document.getElementById("loader").style.display = "flex";
+      try { await fetch(GAS_API_URL, { method: "POST", body: JSON.stringify({ action: "registerUser", userId: currentUserId, displayName: currentDisplayName, school: school, grade: grade }) });
+        document.getElementById("registerModal").style.display = "none"; alert(`🎉 ลงทะเบียนสำเร็จ!`); await refreshAllData(); } catch (e) { alert("เกิดข้อผิดพลาด"); } finally { document.getElementById("loader").style.display = "none"; }
+    }
+    
+    function openItemModal(item) { selectedModalItem = item; document.getElementById("modalItemName").innerText = item.name; document.getElementById("modalItemDesc").innerText = `ระดับ: ${item.rarity} | มี: x${item.qty} ชิ้น`; document.getElementById("itemModal").style.display = "block"; }
+    function closeModal() { document.getElementById("itemModal").style.display = "none"; }
+
+    async function actionEquip() {
+      closeModal(); document.getElementById("loader").style.display = "flex";
+      try { await fetch(GAS_API_URL, { method: "POST", body: JSON.stringify({ action: "equipItem", userId: currentUserId, itemId: selectedModalItem.id }) }); await refreshAllData(); alert(`สวมใส่ [${selectedModalItem.name}] สำเร็จ!`); } catch (e) { alert("เกิดข้อผิดพลาด"); } finally { document.getElementById("loader").style.display = "none"; }
+    }
+
+    async function actionSacrifice() {
+      if (!confirm(`ปา [${selectedModalItem.name}] ใส่บอสใช่หรือไม่?`)) return;
+      closeModal(); document.getElementById("loader").style.display = "flex";
+      try {
+        const res = await fetch(GAS_API_URL, { method: "POST", body: JSON.stringify({ action: "sacrificeItem", userId: currentUserId, displayName: currentDisplayName, itemId: selectedModalItem.id }) });
+        const data = await res.json(); await refreshAllData(); document.getElementById("loader").style.display = "none";
+        if (data.status === "success") { switchTab('profileTab'); window.scrollTo({ top: 0, behavior: 'smooth' }); const dmg = data.damageDealt || 50; playAttackAnimation(dmg); setTimeout(() => { alert(`💥 ปา [${data.itemName}] สำเร็จ! ดาเมจ -${dmg} HP!`); }, 1100); } else { alert(data.message); }
+      } catch (e) { document.getElementById("loader").style.display = "none"; alert("เกิดข้อผิดพลาด"); }
+    }
+
+    async function submitEventCode() {
+      const code = document.getElementById("eventCodeInput").value.trim(); if (!code) return; document.getElementById("loader").style.display = "flex";
+      try { const res = await fetch(GAS_API_URL, { method: "POST", body: JSON.stringify({ action: "redeemCode", userId: currentUserId, displayName: currentDisplayName, code: code }) }); const data = await res.json(); await refreshAllData(); if (data.status === "success") { document.getElementById("eventCodeInput").value = ""; alert(`🎉 เติมสำเร็จ! ได้รับ [${data.itemName}]`); } else alert(data.message); } catch (e) { alert("เกิดข้อผิดพลาด"); } finally { document.getElementById("loader").style.display = "none"; }
     }
 
     function populateTradeSelect() {
-      const sel = document.getElementById("tradeMyItemSelect"); sel.innerHTML = "";
-      if (!myInventory.length) { sel.innerHTML = "<option value=''>ไม่มีไอเทม</option>"; return; }
+      const sel = document.getElementById("tradeMyItemSelect"); sel.innerHTML = ""; if (!myInventory.length) { sel.innerHTML = "<option value=''>ไม่มีไอเทม</option>"; return; }
       myInventory.forEach(i => { const o = document.createElement("option"); o.value = i.id; o.innerText = `${i.name} (มี x${i.qty})`; sel.appendChild(o); });
     }
 
     async function createTradeRoom() {
-      const itemId = document.getElementById("tradeMyItemSelect").value;
-      if (!itemId) return; document.getElementById("loader").style.display = "flex";
-      try {
-        const res = await fetch(GAS_API_URL, { method: "POST", body: JSON.stringify({ action: "createTrade", userId: currentUserId, itemId: itemId }) });
-        const data = await res.json(); await refreshAllData();
-        alert(`เปิดห้องแลกเปลี่ยนสำเร็จ! รหัส ${data.tradeCode}`);
-      } catch (e) { alert("เกิดข้อผิดพลาด"); } finally { document.getElementById("loader").style.display = "none"; }
+      const itemId = document.getElementById("tradeMyItemSelect").value; if (!itemId) return; document.getElementById("loader").style.display = "flex";
+      try { const res = await fetch(GAS_API_URL, { method: "POST", body: JSON.stringify({ action: "createTrade", userId: currentUserId, itemId: itemId }) }); const data = await res.json(); await refreshAllData(); alert(`เปิดห้องแลกเปลี่ยนสำเร็จ! รหัส ${data.tradeCode}`); } catch (e) { alert("เกิดข้อผิดพลาด"); } finally { document.getElementById("loader").style.display = "none"; }
     }
 
     async function acceptTradePrompt(tCode, itemName) {
-      if (!myInventory.length) return alert("ไม่มีของสำหรับแลก");
-      const yourItemName = prompt(`เพื่อนเสนอ: ${itemName}\nพิมพ์ชื่อไอเทมของคุณที่ต้องการมอบ:`);
-      if (!yourItemName) return;
-      const myItem = myInventory.find(i => i.name.includes(yourItemName.trim()));
-      if (!myItem) return alert("ไม่พบไอเทมนี้ในกระเป๋า");
-      document.getElementById("loader").style.display = "flex";
-      try {
-        const res = await fetch(GAS_API_URL, { method: "POST", body: JSON.stringify({ action: "acceptTrade", userId: currentUserId, tradeCode: tCode, counterItemId: myItem.id }) });
-        const data = await res.json(); await refreshAllData();
-        if (data.status === "success") alert(`แลกเปลี่ยนสำเร็จ! ได้รับ [${data.receivedItem}]`); else alert(data.message);
-      } catch (e) { alert("เกิดข้อผิดพลาด"); } finally { document.getElementById("loader").style.display = "none"; }
+      if (!myInventory.length) return alert("ไม่มีของ"); const yourItemName = prompt(`เพื่อนเสนอ: ${itemName}\nพิมพ์ชื่อไอเทมของคุณที่ต้องการมอบ:`); if (!yourItemName) return; const myItem = myInventory.find(i => i.name.includes(yourItemName.trim())); if (!myItem) return alert("ไม่พบไอเทมนี้"); document.getElementById("loader").style.display = "flex";
+      try { const res = await fetch(GAS_API_URL, { method: "POST", body: JSON.stringify({ action: "acceptTrade", userId: currentUserId, tradeCode: tCode, counterItemId: myItem.id }) }); const data = await res.json(); await refreshAllData(); if (data.status === "success") alert(`แลกสำเร็จ! ได้รับ [${data.receivedItem}]`); else alert(data.message); } catch (e) { alert("เกิดข้อผิดพลาด"); } finally { document.getElementById("loader").style.display = "none"; }
     }
 
     window.onload = initApp;
