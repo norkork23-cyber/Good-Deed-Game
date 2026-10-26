@@ -202,18 +202,39 @@
     </div>
   </div>
 
-  <!-- ==================== TAB 3: INVENTORY ==================== -->
+  <!-- ==================== TAB 3: GACHA & COLLECTION ==================== -->
   <div id="bagTab" class="tab-content">
+    
+    <!-- 🎰 โซนตู้กาชาปอง -->
+    <div class="card" style="text-align: center; border-color: #FBBF24; background: radial-gradient(circle, #3B0764 0%, #151D2F 100%);">
+      <h3 style="color: #FBBF24; font-size: 18px; margin-bottom: 5px;">🎰 ตู้สุ่มกาชาปองความดี</h3>
+      <p style="font-size: 11px; color: #D8B4FE; margin-bottom: 15px;">ใช้ 🪙 เหรียญกาชา 1 เหรียญ ต่อการหมุน 1 ครั้ง</p>
+      
+      <!-- แอนิเมชันตู้กาชา -->
+      <div id="gachaMachine" style="font-size: 80px; margin: 15px 0; transition: transform 0.3s; text-shadow: 0 0 20px rgba(251, 191, 36, 0.5);">
+        🕹️
+      </div>
+
+      <div style="font-size: 14px; font-weight: bold; color: #34D399; margin-bottom: 15px;" id="coinCountDisplay">
+        เหรียญของคุณ: 0 🪙
+      </div>
+
+      <button class="btn-main" style="background: linear-gradient(90deg, #F59E0B, #EA580C);" onclick="playGacha()">
+        👇 กดหมุนตู้สุ่มกาชาเลย! 👇
+      </button>
+    </div>
+
+    <!-- 📖 โซนสมุดสะสมไอเทม -->
     <div class="card">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-        <div class="title" style="margin-bottom:0;">🎒 คลังเป้สะสม</div>
-        <span style="font-size: 11px; color: var(--dim);" id="bagCount">0 ชิ้น</span>
+        <div class="title" style="margin-bottom:0;">📖 สมุดสะสมคอลเลกชัน</div>
+        <span style="font-size: 11px; color: var(--dim);" id="bagCount">สะสมแล้ว 0 ชิ้น</span>
       </div>
-      <p style="font-size: 11px; color: var(--dim); margin-bottom: 12px;">แตะที่ไอเทมเพื่อ "สวมใส่รับบัฟ" หรือ "ปาใส่ World Boss"</p>
+      <p style="font-size: 11px; color: var(--dim); margin-bottom: 12px;">ไอเทมทั้งหมดที่คุณสุ่มได้ จะถูกเก็บสะสมไว้ที่นี่</p>
       <div class="grid" id="invGrid"></div>
     </div>
-  </div>
 
+  </div>
   <!-- ==================== TAB 4: TRADE ==================== -->
   <div id="tradeTab" class="tab-content">
     <div class="card">
@@ -276,7 +297,53 @@
       4: { sprite: "👑", title: "ผู้กล้าหายาก" },
       5: { sprite: "✨", title: "ตำนานผู้กล้า" }
     };
+    
+// ==================== ระบบสุ่มกาชาปอง (Frontend) ====================
+    async function playGacha() {
+      const gachaEl = document.getElementById("gachaMachine");
+      
+      // สั่นตู้กาชา
+      gachaEl.style.animation = "bossDamaged 0.4s ease-in-out infinite"; // ยืมแอนิเมชันตัวสั่นของบอสมาใช้
+      gachaEl.innerText = "⏳";
+      
+      document.getElementById("loader").style.display = "flex";
+      document.getElementById("loaderText").innerText = "กำลังหมุนตู้กาชา...";
 
+      try {
+        const res = await fetch(GAS_API_URL, {
+          method: "POST",
+          body: JSON.stringify({ action: "pullGacha", userId: currentUserId })
+        });
+        const data = await res.json();
+        
+        document.getElementById("loader").style.display = "none";
+        gachaEl.style.animation = "none";
+        
+        if (data.status === "error") {
+          gachaEl.innerText = "🕹️";
+          alert(data.message);
+        } else {
+          // แอนิเมชันเปิดแคปซูล
+          gachaEl.style.transform = "scale(1.5)";
+          gachaEl.innerText = "💥";
+          
+          setTimeout(() => {
+            gachaEl.style.transform = "scale(1)";
+            gachaEl.innerText = "🕹️";
+            
+            // เด้ง Modal โชว์ของที่ได้
+            alert(`🎉 แจ็กพอตแตก!\nคุณสุ่มได้: ${data.item.name}\n(ระดับ: ${data.item.rarity})\n\nถูกเก็บเข้าสมุดสะสมเรียบร้อยแล้ว!`);
+            refreshAllData(); // โหลดกระเป๋าใหม่
+          }, 600);
+        }
+      } catch (e) {
+        document.getElementById("loader").style.display = "none";
+        gachaEl.style.animation = "none";
+        gachaEl.innerText = "🕹️";
+        alert("เกิดข้อผิดพลาดในการเชื่อมต่อตู้กาชา");
+      }
+    }
+    
     // ==================== BINGO LOGIC ====================
     const bingoTaskPool = [
       { id: "b1", icon: "🧹", name: "กวาดบ้าน/ถูบ้าน" },
@@ -464,17 +531,44 @@
       } catch (err) { console.error("Error:", err); }
     }
 
-    function renderInventory() {
-      const grid = document.getElementById("invGrid"); grid.innerHTML = "";
-      let count = 0; myInventory.forEach(i => count += i.qty);
-      document.getElementById("bagCount").innerText = `${count} ชิ้น`;
-      const eq = myInventory.find(i => i.id === currentEquippedId);
+function renderInventory() {
+      const grid = document.getElementById("invGrid"); 
+      grid.innerHTML = "";
+      
+      // --- 1. โค้ดอัปเดตเหรียญกาชา (จากในรูปภาพ) ---
+      const coinData = myInventory.find(i => i.id === "ITEM_00");
+      const coins = coinData ? coinData.qty : 0;
+      const coinDisplay = document.getElementById("coinCountDisplay");
+      if (coinDisplay) coinDisplay.innerText = `เหรียญกาชาของคุณ: ${coins} 🪙`;
+      
+      // กรองไม่ให้ ITEM_00 (เหรียญ) ไปโชว์รวมในสมุดสะสม
+      const displayInventory = myInventory.filter(i => i.id !== "ITEM_00");
+      
+      let count = 0; 
+      displayInventory.forEach(i => count += i.qty);
+      document.getElementById("bagCount").innerText = `สะสมแล้ว ${count} ชิ้น`;
+      // ------------------------------------------
+
+      // 2. โชว์ไอเทมสวมใส่ (ถ้ามี)
+      const eq = displayInventory.find(i => i.id === currentEquippedId);
       document.getElementById("uEquip").innerText = eq ? `🛡️ สวมใส่: ${eq.name}` : "🛡️ ไม่ได้สวมใส่อุปกรณ์";
-      if (myInventory.length === 0) { grid.innerHTML = "<p style='grid-column:span 3; font-size:12px; color:var(--dim); text-align:center;'>กระเป๋าว่างเปล่า</p>"; return; }
-      myInventory.forEach(item => {
-        const d = document.createElement("div"); d.className = `slot ${item.rarity}`; d.onclick = () => openItemModal(item);
-        const iconMatch = item.name.match(/^(\p{Emoji}|\p{Extended_Pictographic})/u); const icon = iconMatch ? iconMatch[0] : "📦";
+      
+      // 3. ถ้าไม่มีของให้ขึ้นว่าว่างเปล่า
+      if (displayInventory.length === 0) { 
+        grid.innerHTML = "<p style='grid-column:span 3; font-size:12px; color:var(--dim); text-align:center;'>สมุดสะสมว่างเปล่า ยังไม่มีคอลเลกชัน</p>"; 
+        return; 
+      }
+      
+      // 4. วาดไอเทมลงในสมุดสะสม
+      displayInventory.forEach(item => {
+        const d = document.createElement("div"); 
+        d.className = `slot ${item.rarity}`; 
+        d.onclick = () => openItemModal(item);
+        
+        const iconMatch = item.name.match(/^(\p{Emoji}|\p{Extended_Pictographic})/u); 
+        const icon = iconMatch ? iconMatch[0] : "📦";
         const cleanName = item.name.replace(icon, "").trim();
+        
         d.innerHTML = `<div class="slot-qty">x${item.qty}</div><div style="font-size:24px; margin:4px 0;">${icon}</div><div style="font-size:11px; line-height:1.2;">${cleanName || item.name}</div>`;
         grid.appendChild(d);
       });
