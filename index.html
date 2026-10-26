@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Good Deed Quest RPG</title>
 
-  <!-- 🟢 โหลด LINE LIFF SDK ลำดับแรกสุดเสมอ -->
+  <!-- 🟢 โหลด LINE LIFF SDK -->
   <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 
   <!-- Google Fonts: Prompt -->
@@ -15,342 +15,106 @@
 
   <style>
     :root {
-      --bg: #0B0F19;
-      --card: #151D2F;
-      --card-sub: #1E293B;
-      --border: #334155;
-      --text: #F8FAFC;
-      --dim: #94A3B8;
-      --green: #10B981;
-      --purple: #8B5CF6;
-      --blue: #38BDF8;
-      --orange: #FB923C;
-      --red: #EF4444;
-
-      /* Rarity Colors */
-      --rarity-common: #94A3B8;
-      --rarity-uncommon: #10B981;
-      --rarity-rare: #38BDF8;
-      --rarity-epic: #C084FC;
-      --rarity-legendary: #FBBF24;
-      --rarity-secret: #F43F5E;
-      --rarity-limited: #E91E63;
+      --bg: #0B0F19; --card: #151D2F; --card-sub: #1E293B; --border: #334155;
+      --text: #F8FAFC; --dim: #94A3B8; --green: #10B981; --purple: #8B5CF6;
+      --blue: #38BDF8; --orange: #FB923C; --red: #EF4444;
+      --rarity-common: #94A3B8; --rarity-uncommon: #10B981; --rarity-rare: #38BDF8;
+      --rarity-epic: #C084FC; --rarity-legendary: #FBBF24; --rarity-secret: #F43F5E; --rarity-limited: #E91E63;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Prompt', -apple-system, sans-serif;
-      -webkit-tap-highlight-color: transparent;
-    }
-
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Prompt', sans-serif; -webkit-tap-highlight-color: transparent; }
+    
     body {
-      background: var(--bg);
-      color: var(--text);
-      padding: 14px;
-      /* รองรับ Safe Area ขอบล่างทั้ง iOS และ Android */
+      background: var(--bg); color: var(--text); padding: 14px;
       padding-bottom: calc(120px + env(safe-area-inset-bottom, 20px));
-      max-width: 480px;
-      margin: 0 auto;
-      min-height: 100vh;
-      -webkit-overflow-scrolling: touch;
+      max-width: 480px; margin: 0 auto; min-height: 100vh; -webkit-overflow-scrolling: touch;
     }
 
     /* Loader */
-    #loader {
-      position: fixed;
-      inset: 0;
-      background: var(--bg);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 999;
-      transition: opacity 0.3s ease;
-    }
-    .spinner {
-      border: 4px solid var(--card-sub);
-      border-top: 4px solid var(--green);
-      border-radius: 50%;
-      width: 44px;
-      height: 44px;
-      animation: spin 0.8s linear infinite;
-    }
+    #loader { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 999; transition: opacity 0.3s ease; }
+    .spinner { border: 4px solid var(--card-sub); border-top: 4px solid var(--green); border-radius: 50%; width: 44px; height: 44px; animation: spin 0.8s linear infinite; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-    /* Navigation Tabs */
-    .tabs {
-      display: flex;
-      background: var(--card);
-      padding: 4px;
-      border-radius: 14px;
-      margin-bottom: 14px;
-      border: 1px solid var(--border);
-    }
-    .tab-btn {
-      flex: 1;
-      padding: 12px 2px;
-      background: none;
-      border: none;
-      color: var(--dim);
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      border-radius: 10px;
-      transition: all 0.2s ease;
-    }
-    .tab-btn.active {
-      background: var(--card-sub);
-      color: var(--green);
-      border: 1px solid var(--border);
-    }
-
-    /* Tab Switch Mechanism */
+    /* Tabs */
+    .tabs { display: flex; background: var(--card); padding: 4px; border-radius: 14px; margin-bottom: 14px; border: 1px solid var(--border); }
+    .tab-btn { flex: 1; padding: 12px 2px; background: none; border: none; color: var(--dim); font-size: 13px; font-weight: 600; cursor: pointer; border-radius: 10px; transition: all 0.2s ease; }
+    .tab-btn.active { background: var(--card-sub); color: var(--green); border: 1px solid var(--border); }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
 
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 16px;
-      margin-bottom: 14px;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 14px; box-shadow: 0 4px 14px rgba(0,0,0,0.3); }
+    .title { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+
+    /* Profile UI */
+    .hero-top { display: flex; justify-content: space-between; align-items: center; }
+    .badge { background: linear-gradient(135deg, #059669, #10B981); color: #fff; padding: 3px 10px; border-radius: 99px; font-size: 12px; font-weight: 700; }
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+    .stat-box { background: #0F172A; padding: 10px; border-radius: 10px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
+
+    /* ================= ⚔️ ฉากต่อสู้ RPG Battle Stage ================= */
+    .battle-arena {
+      background: linear-gradient(180deg, #1E1B4B 0%, #3B0764 70%, #111827 100%);
+      border: 2px solid #8B5CF6; border-radius: 16px; padding: 14px; margin-bottom: 14px;
+      position: relative; overflow: hidden; box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
     }
-    .title {
-      font-size: 15px;
-      font-weight: 600;
-      margin-bottom: 8px;
+    .stage-field {
+      display: flex; justify-content: space-between; align-items: flex-end;
+      height: 110px; padding: 10px 20px; position: relative;
+      background: radial-gradient(ellipse at bottom, rgba(16, 185, 129, 0.15) 0%, transparent 70%);
+    }
+    .fighter { font-size: 52px; position: relative; user-select: none; filter: drop-shadow(0 6px 8px rgba(0,0,0,0.6)); z-index: 10; }
+    
+    /* Idle Animations */
+    .hero-sprite { animation: heroIdle 1.6s ease-in-out infinite; }
+    .boss-sprite { font-size: 64px; animation: bossFloat 2.2s ease-in-out infinite; }
+    @keyframes heroIdle { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-6px) scale(1.03); } }
+    @keyframes bossFloat { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-10px) rotate(-3deg); } }
+
+    /* Action Animations */
+    .hero-attack { animation: attackMove 0.5s ease-in-out !important; }
+    @keyframes attackMove { 
+      0% { transform: translateX(0); } 
+      40% { transform: translateX(130px) scale(1.2) rotate(15deg); } 
+      100% { transform: translateX(0); } 
+    }
+    .boss-hit { animation: bossDamaged 0.5s ease-in-out !important; }
+    @keyframes bossDamaged {
+      0%, 100% { transform: translateX(0); filter: none; }
+      20% { transform: translateX(12px) scale(0.9); filter: brightness(2) sepia(1) hue-rotate(-50deg) saturate(5); }
+      40% { transform: translateX(-12px); }
+      60% { transform: translateX(8px); }
+      80% { transform: translateX(-8px); }
+    }
+    .floating-dmg {
+      position: absolute; right: 25px; top: 10px; font-size: 22px; font-weight: 800; color: #FF2E4C;
+      text-shadow: 0 2px 4px #000, 0 0 10px #FFBF00; pointer-events: none;
+      animation: floatUp 1s ease-out forwards; z-index: 20;
+    }
+    @keyframes floatUp {
+      0% { opacity: 1; transform: translateY(20px) scale(0.5); }
+      40% { opacity: 1; transform: translateY(-10px) scale(1.2); }
+      100% { opacity: 0; transform: translateY(-35px) scale(1); }
     }
 
-    /* Hero Profile */
-    .hero-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .badge {
-      background: linear-gradient(135deg, #059669, #10B981);
-      color: #fff;
-      padding: 3px 10px;
-      border-radius: 99px;
-      font-size: 12px;
-      font-weight: 700;
-    }
-    .stats-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-top: 10px;
-    }
-    .stat-box {
-      background: #0F172A;
-      padding: 10px;
-      border-radius: 10px;
-      text-align: center;
-      border: 1px solid rgba(255,255,255,0.05);
-    }
+    /* HP Bar */
+    .hp-bar { background: #31135E; height: 14px; border-radius: 8px; overflow: hidden; margin: 8px 0; border: 1px solid #A855F7; }
+    .hp-fill { background: linear-gradient(90deg, var(--red), var(--orange)); height: 100%; width: 100%; transition: width 0.5s ease; }
 
-    /* Boss Box */
-    .boss-box {
-      background: linear-gradient(135deg, #3B0764, #1E1B4B);
-      border: 1.5px solid #7E22CE;
-      border-radius: 16px;
-      padding: 14px;
-      margin-bottom: 14px;
-      box-shadow: 0 0 16px rgba(126, 34, 206, 0.25);
-    }
-    .hp-bar {
-      background: #31135E;
-      height: 14px;
-      border-radius: 8px;
-      overflow: hidden;
-      margin: 8px 0;
-      border: 1px solid #A855F7;
-    }
-    .hp-fill {
-      background: linear-gradient(90deg, var(--red), var(--orange));
-      height: 100%;
-      width: 100%;
-      transition: width 0.5s ease;
-    }
-
-    /* Forms */
-    input, textarea, select {
-      width: 100%;
-      padding: 11px 12px;
-      background: #0F172A;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      color: #fff;
-      font-size: 13px;
-      margin-top: 4px;
-      margin-bottom: 12px;
-      outline: none;
-      box-sizing: border-box;
-    }
-    .btn-main {
-      width: 100%;
-      padding: 14px;
-      background: var(--green);
-      border: none;
-      border-radius: 12px;
-      color: #fff;
-      font-weight: 700;
-      font-size: 15px;
-      cursor: pointer;
-      display: block;
-      margin-top: 8px;
-      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
-      transition: opacity 0.2s;
-    }
+    /* Inputs / Buttons */
+    input, textarea, select { width: 100%; padding: 11px 12px; background: #0F172A; border: 1px solid var(--border); border-radius: 10px; color: #fff; font-size: 13px; margin-top: 4px; margin-bottom: 12px; box-sizing: border-box; }
+    .btn-main { width: 100%; padding: 14px; background: var(--green); border: none; border-radius: 12px; color: #fff; font-weight: 700; font-size: 15px; cursor: pointer; display: block; margin-top: 8px; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35); transition: opacity 0.2s; }
     .btn-main:active { opacity: 0.85; }
     .btn-purple { background: var(--purple); box-shadow: 0 4px 14px rgba(139, 92, 246, 0.35); }
 
     /* Inventory Grid */
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-    }
-    .slot {
-      background: #0F172A;
-      border: 1.5px solid var(--border);
-      border-radius: 12px;
-      padding: 10px 6px;
-      text-align: center;
-      position: relative;
-      cursor: pointer;
-      min-height: 90px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-    }
-    .slot.Common { border-color: var(--rarity-common); }
-    .slot.Uncommon { border-color: var(--rarity-uncommon); }
-    .slot.Rare { border-color: var(--rarity-rare); box-shadow: 0 0 8px rgba(56, 189, 248, 0.2); }
-    .slot.Epic { border-color: var(--rarity-epic); box-shadow: 0 0 10px rgba(192, 132, 252, 0.3); }
-    .slot.Legendary { border-color: var(--rarity-legendary); box-shadow: 0 0 12px rgba(251, 191, 36, 0.35); }
-    .slot.Secret { border-color: var(--rarity-secret); box-shadow: 0 0 14px rgba(244, 63, 94, 0.45); }
-    .slot.Limited { border-color: var(--rarity-limited); box-shadow: 0 0 12px rgba(233, 30, 99, 0.4); }
-
-    .slot-qty {
-      position: absolute;
-      top: 4px;
-      right: 4px;
-      font-size: 10px;
-      background: rgba(0,0,0,0.7);
-      padding: 1px 5px;
-      border-radius: 6px;
-    }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .slot { background: #0F172A; border: 1.5px solid var(--border); border-radius: 12px; padding: 10px 6px; text-align: center; position: relative; cursor: pointer; min-height: 90px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+    .slot.Common { border-color: var(--rarity-common); } .slot.Uncommon { border-color: var(--rarity-uncommon); } .slot.Rare { border-color: var(--rarity-rare); box-shadow: 0 0 8px rgba(56, 189, 248, 0.2); } .slot.Epic { border-color: var(--rarity-epic); box-shadow: 0 0 10px rgba(192, 132, 252, 0.3); } .slot.Legendary { border-color: var(--rarity-legendary); box-shadow: 0 0 12px rgba(251, 191, 36, 0.35); } .slot.Secret { border-color: var(--rarity-secret); box-shadow: 0 0 14px rgba(244, 63, 94, 0.45); } .slot.Limited { border-color: var(--rarity-limited); box-shadow: 0 0 12px rgba(233, 30, 99, 0.4); }
+    .slot-qty { position: absolute; top: 4px; right: 4px; font-size: 10px; background: rgba(0,0,0,0.7); padding: 1px 5px; border-radius: 6px; }
 
     /* Modal */
-    .modal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.85);
-      backdrop-filter: blur(6px);
-      z-index: 100;
-      padding: 20px 14px;
-    }
-    .modal-box {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 16px;
-      max-height: 90vh;
-      overflow-y: auto;
-    }
-    /* ================= ฉากต่อสู้ RPG Battle Stage ================= */
-.battle-arena {
-  background: linear-gradient(180deg, #1E1B4B 0%, #3B0764 70%, #111827 100%);
-  border: 2px solid #8B5CF6;
-  border-radius: 16px;
-  padding: 14px;
-  margin-bottom: 14px;
-  position: relative;
-  overflow: hidden;
-  box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
-}
-
-/* เวทีที่ตัวละครยืนสู้กัน */
-.stage-field {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  height: 110px;
-  padding: 10px 20px;
-  position: relative;
-  background: radial-gradient(ellipse at bottom, rgba(16, 185, 129, 0.15) 0%, transparent 70%);
-}
-
-/* ตัวละครผู้เล่นและบอสขยับขึ้นลง (Idle Animation) */
-.fighter {
-  font-size: 52px;
-  position: relative;
-  user-select: none;
-  filter: drop-shadow(0 6px 8px rgba(0,0,0,0.6));
-}
-.hero-sprite {
-  animation: heroIdle 1.6s ease-in-out infinite;
-}
-.boss-sprite {
-  font-size: 64px;
-  animation: bossFloat 2.2s ease-in-out infinite;
-}
-
-@keyframes heroIdle {
-  0%, 100% { transform: translateY(0) scale(1); }
-  50% { transform: translateY(-6px) scale(1.03); }
-}
-@keyframes bossFloat {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-10px) rotate(-3deg); }
-}
-
-/* ท่าพุ่งโจมตีของผู้กล้า */
-.hero-attack {
-  animation: attackMove 0.5s ease-in-out !important;
-}
-@keyframes attackMove {
-  0% { transform: translateX(0); }
-  40% { transform: translateX(130px) scale(1.2) rotate(15deg); }
-  100% { transform: translateX(0); }
-}
-
-/* ท่าบอสโดนตี (ตัวสั่น + กะพริบสีแดง) */
-.boss-hit {
-  animation: bossDamaged 0.5s ease-in-out !important;
-}
-@keyframes bossDamaged {
-  0%, 100% { transform: translateX(0); filter: none; }
-  20% { transform: translateX(12px) scale(0.9); filter: brightness(2) sepia(1) hue-rotate(-50deg) saturate(5); }
-  40% { transform: translateX(-12px); }
-  60% { transform: translateX(8px); }
-  80% { transform: translateX(-8px); }
-}
-
-/* ตัวเลขดาเมจลอยขึ้นมา */
-.floating-dmg {
-  position: absolute;
-  right: 25px;
-  top: 10px;
-  font-size: 22px;
-  font-weight: 800;
-  color: #FF2E4C;
-  text-shadow: 0 2px 4px #000, 0 0 10px #FFBF00;
-  pointer-events: none;
-  animation: floatUp 1s ease-out forwards;
-  z-index: 20;
-}
-@keyframes floatUp {
-  0% { opacity: 1; transform: translateY(20px) scale(0.5); }
-  40% { opacity: 1; transform: translateY(-10px) scale(1.2); }
-  100% { opacity: 0; transform: translateY(-35px) scale(1); }
-}
+    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(6px); z-index: 100; padding: 20px 14px; }
+    .modal-box { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px; max-height: 90vh; overflow-y: auto; position: relative; top: 50%; transform: translateY(-50%); }
   </style>
 </head>
 <body>
@@ -369,7 +133,7 @@
     <button class="tab-btn" onclick="switchTab('tradeTab', event)">🤝 เทรดของ</button>
   </div>
 
-  <!-- ==================== TAB 1: PROFILE & BOSS ==================== -->
+  <!-- ==================== TAB 1: PROFILE & BATTLE ==================== -->
   <div id="profileTab" class="tab-content active">
     <div class="card">
       <div class="hero-top">
@@ -392,27 +156,25 @@
       </div>
     </div>
 
-<!-- ⚔️ ฉากต่อสู้ LIVE BATTLE ARENA -->
+    <!-- ⚔️ ฉากต่อสู้ LIVE BATTLE ARENA -->
     <div class="battle-arena" id="battleArena">
-      <!-- ข้อมูลชื่อและหลอดเลือดบอส -->
       <div style="display: flex; justify-content: space-between; font-size: 12px;">
-        <span style="font-weight: 700; color: #F43F5E;" id="bossName">👹 จอมมารขยะพลาสติก</span>
-        <span id="bossHpText">2000 / 2000 HP</span>
+        <span style="font-weight: 700; color: #F43F5E;" id="bossName">👹 WORLD BOSS</span>
+        <span id="bossHpText">0 / 2000 HP</span>
       </div>
       <div class="hp-bar"><div class="hp-fill" id="bossHpFill"></div></div>
       
       <!-- เวทีตัวละครขยับสู้กัน -->
       <div class="stage-field" id="stageField">
-        <!-- ฝั่งผู้เล่น (เปลี่ยนไอคอนหรือใส่รูป PNG/GIF ได้) -->
+        <!-- ฝั่งผู้เล่น (จะเปลี่ยนร่างตามเลเวล) -->
         <div style="text-align: center;">
-          <div class="fighter hero-sprite" id="heroSprite">🧙‍♂️</div>
-          <span style="font-size: 10px; background: rgba(0,0,0,0.6); padding: 2px 6px; border-radius: 6px; color: #34D399;">ตัวคุณ</span>
+          <div class="fighter hero-sprite" id="heroSprite">🌱</div>
+          <span style="font-size: 10px; background: rgba(0,0,0,0.6); padding: 2px 6px; border-radius: 6px; color: #34D399;" id="heroClassLabel">นักเรียนฝึกหัด</span>
         </div>
 
-        <!-- เอฟเฟกต์ปะทะตรงกลาง -->
         <div style="font-size: 20px; color: #FBBF24; align-self: center; opacity: 0.7;">⚡ VS ⚡</div>
 
-        <!-- ฝั่งมอนสเตอร์บอส -->
+        <!-- ฝั่งบอส -->
         <div style="text-align: center;">
           <div class="fighter boss-sprite" id="bossSprite">👾</div>
           <span style="font-size: 10px; background: rgba(239,68,68,0.3); padding: 2px 6px; border-radius: 6px; color: #FCA5A5;">BOSS</span>
@@ -420,105 +182,90 @@
       </div>
 
       <div style="display: flex; justify-content: space-between; font-size: 11px; color: #D8B4FE; margin-top: 6px;">
-        <span id="bossDmgText">ดาเมจรวมทั้งโรงเรียน: 0</span>
+        <span id="bossDmgText">ดาเมจรวม: 0</span>
         <span id="bossPctText">100%</span>
       </div>
-
-      <!-- ปุ่มทดสอบฟันบอสเล่น / ทางลัดไปเป้เพื่อปาของ -->
-      <button class="btn-main" style="margin-top: 10px; padding: 8px; font-size: 12px; background: linear-gradient(90deg, #EF4444, #F97316);" onclick="playAttackAnimation(25)">
-        ⚔️ ทดสอบปล่อยท่าโจมตี!
-      </button>
     </div>
 
     <!-- Redeem Event Code -->
     <div class="card">
-      <div class="title">🎁 เติมรหัสกิจกรรมพิเศษ (Event Code)</div>
+      <div class="title">🎁 เติมรหัสกิจกรรมพิเศษ</div>
       <input type="text" id="eventCodeInput" placeholder="พิมพ์โค้ด เช่น SMART2026">
-      <button class="btn-main btn-purple" onclick="submitEventCode()">รับของรางวัล Limited</button>
+      <button class="btn-main btn-purple" onclick="submitEventCode()">รับของรางวัล</button>
     </div>
   </div>
 
   <!-- ==================== TAB 2: QUEST & SUBMISSION ==================== -->
   <div id="questTab" class="tab-content">
-    <!-- การ์ดเควสประจำสัปดาห์ -->
     <div class="card" style="border-color: #8B5CF6;">
       <div class="title" style="color: #C084FC;">🎯 เควสประจำสัปดาห์ (+50 แต้ม)</div>
       <p style="font-size: 13px; line-height: 1.4; margin-bottom: 8px;" id="questTitle">กำลังโหลดเควส...</p>
       <div id="questStatusText" style="font-size: 12px; color: var(--green); font-weight: 600;"></div>
     </div>
 
-    <!-- ฟอร์มอัปโหลดหลักฐานทำความดี -->
     <div class="card">
-      <div class="title">📸 ส่งหลักฐานการทำความดี</div>
-      <p style="font-size: 11px; color: var(--dim); margin-bottom: 12px;">(จำกัดส่งวันละไม่เกิน 5 ครั้ง • คุณครูเป็นผู้ตรวจและให้แต้ม)</p>
+      <div class="title">📸 ส่งหลักฐานทำความดี</div>
+      <p style="font-size: 11px; color: var(--dim); margin-bottom: 12px;">(จำกัดวันละ 5 ครั้ง • รอคุณครูตรวจและอนุมัติแต้ม)</p>
 
-      <label style="font-size: 12px; color: var(--dim); display:block;">เลือกประเภทภารกิจ:</label>
+      <label style="font-size: 12px; color: var(--dim); display:block;">โหมดการส่ง:</label>
       <select id="submitType">
         <option value="normal">🌟 ความดีทั่วไป</option>
         <option value="quest">🎯 ส่งเควสประจำสัปดาห์</option>
       </select>
 
-      <label style="font-size: 12px; color: var(--dim); display:block;">เล่าความดีที่น้องทำ:</label>
-      <textarea id="storyInput" rows="3" placeholder="เช่น ช่วยคุณแม่ล้างจาน กวาดห้อง หรือจัดกระเป๋านักเรียน..."></textarea>
+      <label style="font-size: 12px; color: var(--dim); display:block;">เล่าความดีที่ทำ:</label>
+      <textarea id="storyInput" rows="3" placeholder="เช่น ช่วยคุณแม่ล้างจาน กวาดห้อง..."></textarea>
 
       <label style="font-size: 12px; color: var(--dim); display:block;">เลือกรูปภาพหลักฐาน:</label>
       <input type="file" id="imageInput" accept="image/*">
 
-      <!-- 🟢 ปุ่มส่งงานเด่นชัด -->
-      <button type="button" class="btn-main" id="btnSubmitGoodDeed" onclick="submitGoodDeed()">
-        🚀 ส่งหลักฐานให้คุณครูตรวจสอบ
-      </button>
+      <button type="button" class="btn-main" onclick="submitGoodDeed()">🚀 ส่งให้คุณครูตรวจสอบ</button>
     </div>
-
     <div style="height: 120px;"></div>
   </div>
 
-  <!-- ==================== TAB 3: INVENTORY (BAG) ==================== -->
+  <!-- ==================== TAB 3: INVENTORY ==================== -->
   <div id="bagTab" class="tab-content">
     <div class="card">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
         <div class="title" style="margin-bottom:0;">🎒 คลังเป้สะสม</div>
         <span style="font-size: 11px; color: var(--dim);" id="bagCount">0 ชิ้น</span>
       </div>
-      <p style="font-size: 11px; color: var(--dim); margin-bottom: 12px;">แตะที่ไอเทมเพื่อ "สวมใส่รับบัฟ" หรือ "สละไอเทมปาใส่ World Boss"</p>
+      <p style="font-size: 11px; color: var(--dim); margin-bottom: 12px;">แตะที่ไอเทมเพื่อ "สวมใส่รับบัฟ" หรือ "ปาใส่ World Boss"</p>
       <div class="grid" id="invGrid"></div>
     </div>
   </div>
 
-  <!-- ==================== TAB 4: TRADE HUB ==================== -->
+  <!-- ==================== TAB 4: TRADE ==================== -->
   <div id="tradeTab" class="tab-content">
     <div class="card">
-      <div class="title">➕ เปิดห้องแลกเปลี่ยนใหม่</div>
-      <label style="font-size: 11px; color: var(--dim); display:block;">เลือกไอเทมของคุณที่จะนำไปแลก:</label>
+      <div class="title">➕ เปิดห้องแลกเปลี่ยน</div>
       <select id="tradeMyItemSelect"></select>
       <button class="btn-main" onclick="createTradeRoom()">สร้างห้องแลกเปลี่ยน</button>
     </div>
-
     <div class="card">
-      <div class="title">📋 ตลาดแลกเปลี่ยนของเพื่อนๆ</div>
+      <div class="title">📋 ตลาดของเพื่อนๆ</div>
       <div id="tradeList"><p style="font-size: 12px; color: var(--dim);">กำลังโหลด...</p></div>
     </div>
   </div>
 
-  <!-- Item Action Modal -->
+  <!-- ==================== MODALS ==================== -->
   <div id="itemModal" class="modal">
     <div class="modal-box">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
         <div style="font-size: 16px; font-weight: 700;" id="modalItemName">-</div>
         <button onclick="closeModal()" style="background: none; border: none; color: #fff; font-size: 16px; cursor: pointer;">✕</button>
       </div>
-      <p style="font-size: 12px; color: var(--dim); margin-bottom: 14px;" id="modalItemDesc">ระดับ: Common | มี x0 ชิ้น</p>
-      
-      <button class="btn-main" style="margin-bottom: 8px;" onclick="actionEquip()">🛡️ สวมใส่เป็นอุปกรณ์หลัก</button>
+      <p style="font-size: 12px; color: var(--dim); margin-bottom: 14px;" id="modalItemDesc">-</p>
+      <button class="btn-main" style="margin-bottom: 8px;" onclick="actionEquip()">🛡️ สวมใส่เป็นอุปกรณ์</button>
       <button class="btn-main" style="background: var(--red); box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);" onclick="actionSacrifice()">💥 สละไอเทมปาใส่ World Boss</button>
     </div>
   </div>
 
-  <!-- Modal ลงทะเบียนสำหรับผู้เล่นใหม่ -->
   <div id="registerModal" class="modal" style="display: none; z-index: 1000;">
     <div class="modal-box">
-      <h3 style="font-size: 16px; font-weight: 700; color: #38BDF8; margin-bottom: 6px;">📝 ลงทะเบียนผู้กล้าคนใหม่</h3>
-      <p style="font-size: 12px; color: var(--dim); margin-bottom: 12px;">กรุณาเลือกโรงเรียนและระดับชั้นของน้องก่อนเริ่มเล่นเกมนะคะ</p>
+      <h3 style="font-size: 16px; font-weight: 700; color: #38BDF8; margin-bottom: 6px;">📝 ลงทะเบียนผู้กล้า</h3>
+      <p style="font-size: 12px; color: var(--dim); margin-bottom: 12px;">เลือกโรงเรียนและระดับชั้นก่อนเริ่มเล่นนะคะ</p>
       
       <label style="font-size: 12px; color: var(--dim); display:block;">🏫 โรงเรียน:</label>
       <select id="regSchool">
@@ -529,15 +276,10 @@
 
       <label style="font-size: 12px; color: var(--dim); display:block;">📚 ระดับชั้น:</label>
       <select id="regGrade">
-        <option value="ป.4">ประถมศึกษาปีที่ 4 (ป.4)</option>
-        <option value="ป.5">ประถมศึกษาปีที่ 5 (ป.5)</option>
-        <option value="ป.6">ประถมศึกษาปีที่ 6 (ป.6)</option>
-        <option value="ม.1">มัธยมศึกษาปีที่ 1 (ม.1)</option>
-        <option value="ม.2">มัธยมศึกษาปีที่ 2 (ม.2)</option>
-        <option value="ม.3">มัธยมศึกษาปีที่ 3 (ม.3)</option>
+        <option value="ป.4">ป.4</option> <option value="ป.5">ป.5</option> <option value="ป.6">ป.6</option>
+        <option value="ม.1">ม.1</option> <option value="ม.2">ม.2</option> <option value="ม.3">ม.3</option>
       </select>
-
-      <button class="btn-main" onclick="submitRegistration()">ยืนยันข้อมูลและเริ่มเล่นเกม ✨</button>
+      <button class="btn-main" onclick="submitRegistration()">ยืนยันข้อมูล ✨</button>
     </div>
   </div>
 
@@ -548,74 +290,70 @@
     const MY_LIFF_ID = "2012153789-X3yDlaPl";
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzR3QDLt30e15PrVO3oftFbYZfVWBTCJ5smbnu4ykBotrw6cQhP0SzJzAVO5CtkaeeV/exec";
 
-    let currentUserId = "";
-    let currentDisplayName = "";
-    let currentSchool = "";
-    let currentEquippedId = "";
-    let myInventory = [];
-    let selectedModalItem = null;
+    let currentUserId = "", currentDisplayName = "", currentSchool = "", currentEquippedId = "";
+    let myInventory = [], selectedModalItem = null;
 
-    // =========================================================================
-    // 🚀 2. การเริ่มต้นและตรวจสอบ LINE Profile
-    // =========================================================================
+    // 🎬 อัปเดตรูปร่างตัวละครตามเลเวล
+    const avatarEvolution = {
+      1: { sprite: "🌱", title: "นักเรียนฝึกหัด" },
+      2: { sprite: "🌟", title: "นักรบคุณธรรม" },
+      3: { sprite: "🛡️", title: "อัศวินพิทักษ์โลก" },
+      4: { sprite: "👑", title: "ผู้กล้าหายาก" },
+      5: { sprite: "✨", title: "ตำนานผู้กล้า" }
+    };
+
     async function initApp() {
       const loader = document.getElementById("loader");
       const loaderText = document.getElementById("loaderText");
-
-      let retryCount = 0;
-      while (typeof liff === "undefined" && retryCount < 25) {
-        await new Promise(resolve => setTimeout(resolve, 200));
-        retryCount++;
-      }
-
-      if (typeof liff === "undefined") {
-        loaderText.innerText = "ไม่สามารถเชื่อมต่อ LINE SDK ได้ กรุณาลองใหม่อีกครั้ง";
-        return;
-      }
-
       try {
         await liff.init({ liffId: MY_LIFF_ID });
-
-        if (!liff.isLoggedIn()) {
-          liff.login({ redirectUri: window.location.href });
-          return;
-        }
-
+        if (!liff.isLoggedIn()) { liff.login({ redirectUri: window.location.href }); return; }
         const profile = await liff.getProfile();
-        currentUserId = profile.userId;
-        currentDisplayName = profile.displayName;
+        currentUserId = profile.userId; currentDisplayName = profile.displayName;
         document.getElementById("uName").innerText = currentDisplayName;
-
-        loaderText.innerText = "กำลังโหลดข้อมูลผู้เล่น...";
+        
+        loaderText.innerText = "กำลังโหลดข้อมูล...";
         await refreshAllData();
         loader.style.display = "none";
-
       } catch (err) {
-        console.error("Init Error:", err);
         loaderText.innerText = "เข้าสู่ระบบไม่สำเร็จ: " + err.message;
       }
     }
 
-    // =========================================================================
-    // 🔄 3. ฟังก์ชันสลับแท็บ (แก้ปัญหาหน้าจอไม่เปลี่ยน)
-    // =========================================================================
     function switchTab(tabId, event) {
       document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
       document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-
       const target = document.getElementById(tabId);
-      if (target) {
-        target.classList.add("active");
-      }
-
-      if (event && event.currentTarget) {
-        event.currentTarget.classList.add("active");
-      }
+      if (target) target.classList.add("active");
+      if (event && event.currentTarget) event.currentTarget.classList.add("active");
     }
 
-    // =========================================================================
-    // ⚡ 4. ดึงและเรนเดอร์ข้อมูลแบบ Single Batch
-    // =========================================================================
+    // 🎬 ฟังก์ชันแอนิเมชันปาของใส่บอส
+    function playAttackAnimation(damageAmount) {
+      const hero = document.getElementById("heroSprite");
+      const boss = document.getElementById("bossSprite");
+      const stage = document.getElementById("stageField");
+
+      if (!hero || !boss || !stage) return;
+
+      hero.classList.remove("hero-attack");
+      void hero.offsetWidth;
+      hero.classList.add("hero-attack");
+
+      setTimeout(() => {
+        boss.classList.remove("boss-hit");
+        void boss.offsetWidth;
+        boss.classList.add("boss-hit");
+
+        const dmgEl = document.createElement("div");
+        dmgEl.className = "floating-dmg";
+        dmgEl.innerText = `💥 -${damageAmount} HP!`;
+        stage.appendChild(dmgEl);
+
+        setTimeout(() => dmgEl.remove(), 1000);
+      }, 200);
+    }
+
     async function refreshAllData() {
       if (!currentUserId) return;
       try {
@@ -624,23 +362,24 @@
 
         if (data.status === "success") {
           const u = data.user;
-          currentSchool = u.school;
-          currentEquippedId = u.equippedItem;
+          currentSchool = u.school; currentEquippedId = u.equippedItem;
 
-          // ตรวจสอบการลงทะเบียน
           if (!u.isRegistered || !u.school || u.school === "ทั่วไป" || u.school === "-") {
             document.getElementById("registerModal").style.display = "block";
-          } else {
-            document.getElementById("registerModal").style.display = "none";
           }
 
           document.getElementById("uLevel").innerText = `Lv.${u.level}`;
           document.getElementById("uBadge").innerText = u.badge;
-          document.getElementById("uSchool").innerText = `🏫 ${u.school || "ยังไม่ระบุ"}`;
+          document.getElementById("uSchool").innerText = `🏫 ${u.school || "-"}`;
           document.getElementById("uPoints").innerText = `${u.points} แต้ม`;
           document.getElementById("uStreak").innerText = `🔥 ${u.streak} วัน`;
-          document.getElementById("questTitle").innerText = u.currentQuest || "ไม่มีเควสในขณะนี้";
-          document.getElementById("questStatusText").innerText = u.questSubmitted ? "✅ ส่งเควสประจำสัปดาห์นี้แล้ว" : "⏳ ยังไม่ได้ส่งเควสสัปดาห์นี้";
+          document.getElementById("questTitle").innerText = u.currentQuest || "ไม่มีเควส";
+          document.getElementById("questStatusText").innerText = u.questSubmitted ? "✅ ส่งเควสสัปดาห์นี้แล้ว" : "⏳ ยังไม่ได้ส่งเควส";
+
+          // อัปเดตร่างอวตารผู้กล้าตามเลเวล (1 ถึง 5)
+          const lvlKey = u.level > 5 ? 5 : u.level;
+          document.getElementById("heroSprite").innerText = avatarEvolution[lvlKey].sprite;
+          document.getElementById("heroClassLabel").innerText = avatarEvolution[lvlKey].title;
 
           myInventory = data.inventory || [];
           renderInventory();
@@ -655,137 +394,78 @@
             document.getElementById("bossHpFill").style.width = `${pct}%`;
             document.getElementById("bossPctText").innerText = `${pct}%`;
           }
-
           renderTrades(data.trades || []);
         }
-      } catch (err) {
-        console.error("refreshAllData Error:", err);
-      }
+      } catch (err) { console.error("Error:", err); }
     }
 
     function renderInventory() {
-      const grid = document.getElementById("invGrid");
-      grid.innerHTML = "";
-      let count = 0;
-      myInventory.forEach(i => count += i.qty);
+      const grid = document.getElementById("invGrid"); grid.innerHTML = "";
+      let count = 0; myInventory.forEach(i => count += i.qty);
       document.getElementById("bagCount").innerText = `${count} ชิ้น`;
 
       const eq = myInventory.find(i => i.id === currentEquippedId);
       document.getElementById("uEquip").innerText = eq ? `🛡️ สวมใส่: ${eq.name}` : "🛡️ ไม่ได้สวมใส่อุปกรณ์";
 
       if (myInventory.length === 0) {
-        grid.innerHTML = "<p style='grid-column:span 3; font-size:12px; color:var(--dim); text-align:center; padding:20px;'>ไม่มีไอเทมในกระเป๋า</p>";
-        return;
+        grid.innerHTML = "<p style='grid-column:span 3; font-size:12px; color:var(--dim); text-align:center;'>กระเป๋าว่างเปล่า</p>"; return;
       }
-
       myInventory.forEach(item => {
-        const d = document.createElement("div");
-        d.className = `slot ${item.rarity}`;
+        const d = document.createElement("div"); d.className = `slot ${item.rarity}`;
         d.onclick = () => openItemModal(item);
-
         const iconMatch = item.name.match(/^(\p{Emoji}|\p{Extended_Pictographic})/u);
         const icon = iconMatch ? iconMatch[0] : "📦";
         const cleanName = item.name.replace(icon, "").trim();
-
-        d.innerHTML = `
-          <div class="slot-qty">x${item.qty}</div>
-          <div style="font-size:24px; margin:4px 0;">${icon}</div>
-          <div style="font-size:11px; line-height:1.2;">${cleanName || item.name}</div>
-        `;
+        d.innerHTML = `<div class="slot-qty">x${item.qty}</div><div style="font-size:24px; margin:4px 0;">${icon}</div><div style="font-size:11px; line-height:1.2;">${cleanName || item.name}</div>`;
         grid.appendChild(d);
       });
     }
 
     function renderTrades(trades) {
-      const c = document.getElementById("tradeList");
-      if (!c) return;
-      c.innerHTML = "";
-      if (trades.length === 0) {
-        c.innerHTML = "<p style='font-size:12px; color:var(--dim);'>ยังไม่มีใครเปิดห้องแลกของ</p>";
-        return;
-      }
+      const c = document.getElementById("tradeList"); c.innerHTML = "";
+      if (!trades.length) { c.innerHTML = "<p style='font-size:12px; color:var(--dim);'>ยังไม่มีห้องแลกของ</p>"; return; }
       trades.forEach(t => {
         const isMe = t.senderId === currentUserId;
         const b = document.createElement("div");
         b.style = "background:#0F172A; border:1px solid var(--border); padding:10px; border-radius:10px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;";
-        b.innerHTML = `
-          <div>
-            <div style="font-size:13px; font-weight:700;">${t.senderItemName}</div>
-            <div style="font-size:11px; color:var(--dim);">รหัส: ${t.tradeCode}</div>
-          </div>
-          <div>${isMe ? '<span style="font-size:11px; color:var(--dim);">ห้องคุณ</span>' : `<button class="btn-main" style="padding:6px 12px; font-size:11px; margin-top:0;" onclick="acceptTradePrompt('${t.tradeCode}', '${t.senderItemName}')">แลกของ</button>`}</div>
-        `;
+        b.innerHTML = `<div><div style="font-size:13px; font-weight:700;">${t.senderItemName}</div><div style="font-size:11px; color:var(--dim);">รหัส: ${t.tradeCode}</div></div>
+          <div>${isMe ? '<span style="font-size:11px; color:var(--dim);">ห้องคุณ</span>' : `<button class="btn-main" style="padding:6px 12px; font-size:11px; margin-top:0;" onclick="acceptTradePrompt('${t.tradeCode}', '${t.senderItemName}')">แลก</button>`}</div>`;
         c.appendChild(b);
       });
     }
 
-    // =========================================================================
-    // 📝 5. ลงทะเบียนผู้ใช้ใหม่
-    // =========================================================================
     async function submitRegistration() {
       const school = document.getElementById("regSchool").value;
       const grade = document.getElementById("regGrade").value;
-
       document.getElementById("loader").style.display = "flex";
-      document.getElementById("loaderText").innerText = "กำลังบันทึกข้อมูลลงทะเบียน...";
-
       try {
-        const res = await fetch(GAS_API_URL, {
-          method: "POST",
-          body: JSON.stringify({
-            action: "registerUser",
-            userId: currentUserId,
-            displayName: currentDisplayName,
-            school: school,
-            grade: grade
-          })
-        });
-        const result = await res.json();
-        if (result.status === "success") {
-          document.getElementById("registerModal").style.display = "none";
-          alert(`🎉 ลงทะเบียนสำเร็จ! ยินดีต้อนรับสู่ ${school}`);
-          await refreshAllData();
-        }
-      } catch (e) {
-        alert("ลงทะเบียนไม่สำเร็จ กรุณาลองใหม่อีกครั้ง");
-      } finally {
-        document.getElementById("loader").style.display = "none";
-      }
+        await fetch(GAS_API_URL, { method: "POST", body: JSON.stringify({ action: "registerUser", userId: currentUserId, displayName: currentDisplayName, school: school, grade: grade }) });
+        document.getElementById("registerModal").style.display = "none";
+        alert(`🎉 ลงทะเบียนสำเร็จ!`);
+        await refreshAllData();
+      } catch (e) { alert("เกิดข้อผิดพลาด"); } finally { document.getElementById("loader").style.display = "none"; }
     }
 
-    // =========================================================================
-    // 🎒 6. จัดการไอเทม (สวมใส่ / ปาใส่ Boss)
-    // =========================================================================
     function openItemModal(item) {
       selectedModalItem = item;
       document.getElementById("modalItemName").innerText = item.name;
       document.getElementById("modalItemDesc").innerText = `ระดับ: ${item.rarity} | มีทั้งหมด: x${item.qty} ชิ้น`;
       document.getElementById("itemModal").style.display = "block";
     }
-
-    function closeModal() {
-      document.getElementById("itemModal").style.display = "none";
-    }
+    function closeModal() { document.getElementById("itemModal").style.display = "none"; }
 
     async function actionEquip() {
-      closeModal();
-      document.getElementById("loader").style.display = "flex";
+      closeModal(); document.getElementById("loader").style.display = "flex";
       try {
-        await fetch(GAS_API_URL, {
-          method: "POST",
-          body: JSON.stringify({ action: "equipItem", userId: currentUserId, itemId: selectedModalItem.id })
-        });
+        await fetch(GAS_API_URL, { method: "POST", body: JSON.stringify({ action: "equipItem", userId: currentUserId, itemId: selectedModalItem.id }) });
         await refreshAllData();
         alert(`สวมใส่ [${selectedModalItem.name}] สำเร็จ!`);
-      } catch (e) {
-        alert("เกิดข้อผิดพลาดในการสวมใส่");
-      } finally {
-        document.getElementById("loader").style.display = "none";
-      }
+      } catch (e) { alert("เกิดข้อผิดพลาด"); } finally { document.getElementById("loader").style.display = "none"; }
     }
 
+    // 💥 ปาไอเทมใส่บอสและรันแอนิเมชัน
     async function actionSacrifice() {
-      if (!confirm(`ต้องการสละ [${selectedModalItem.name}] 1 ชิ้นเพื่อปาใส่ World Boss ใช่หรือไม่?`)) return;
+      if (!confirm(`ต้องการปา [${selectedModalItem.name}] 1 ชิ้นใส่บอสใช่หรือไม่?`)) return;
       closeModal();
       document.getElementById("loader").style.display = "flex";
       try {
@@ -795,183 +475,93 @@
         });
         const data = await res.json();
         await refreshAllData();
+        document.getElementById("loader").style.display = "none";
+        
         if (data.status === "success") {
-          alert(`💥 ปา [${data.itemName}] ใส่บอสสำเร็จ! สร้างความเสียหาย -${data.damageDealt} HP!`);
+          // สลับหน้าจอมาที่หน้าหลักเพื่อให้เห็นฉากตีบอส
+          switchTab('profileTab');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          
+          // รันแอนิเมชัน
+          const dmg = data.damageDealt || 50;
+          playAttackAnimation(dmg);
+
+          // โชว์แจ้งเตือนช้าลงหน่อยเพื่อให้เด็กดูแอนิเมชันฟาดบอสเสร็จก่อน
+          setTimeout(() => {
+            alert(`💥 ปา [${data.itemName}] สำเร็จ! บอสโดนดาเมจ -${dmg} HP!`);
+          }, 1100);
+
         } else {
           alert(data.message);
         }
       } catch (e) {
-        alert("เกิดข้อผิดพลาดในการส่งข้อมูล");
-      } finally {
         document.getElementById("loader").style.display = "none";
+        alert("เกิดข้อผิดพลาดในการส่งข้อมูล");
       }
     }
 
-    // =========================================================================
-    // 📸 7. ส่งหลักฐานความดี / เควส (จำกัด 5 ครั้ง/วัน + คนตรวจ 100%)
-    // =========================================================================
     async function submitGoodDeed() {
       const isQuest = document.getElementById("submitType").value === "quest";
       const story = document.getElementById("storyInput").value.trim();
       const fileInput = document.getElementById("imageInput");
-
-      if (!story) return alert("กรุณาพิมพ์เล่าเรื่องความดีสั้นๆ ด้วยนะคะ");
-      if (fileInput.files.length === 0) return alert("กรุณาเลือกหรือถ่ายภาพหลักฐานด้วยนะคะ");
+      if (!story || fileInput.files.length === 0) return alert("กรุณาใส่เรื่องราวและรูปภาพ");
 
       const file = fileInput.files[0];
       const reader = new FileReader();
-
       document.getElementById("loader").style.display = "flex";
-      document.getElementById("loaderText").innerText = "กำลังอัปโหลดหลักฐาน...";
 
       reader.onload = async function() {
-        const base64Data = reader.result;
         try {
-          const res = await fetch(GAS_API_URL, {
-            method: "POST",
-            body: JSON.stringify({
-              action: "submitGoodDeed",
-              userId: currentUserId,
-              displayName: currentDisplayName,
-              school: currentSchool,
-              isQuest: isQuest,
-              story: story,
-              imageBase64: base64Data
-            })
-          });
+          const res = await fetch(GAS_API_URL, { method: "POST", body: JSON.stringify({ action: "submitGoodDeed", userId: currentUserId, displayName: currentDisplayName, school: currentSchool, isQuest: isQuest, story: story, imageBase64: reader.result }) });
           const result = await res.json();
-          
-          if (result.status === "error") {
-            alert(result.message);
-          } else {
-            document.getElementById("storyInput").value = "";
-            fileInput.value = "";
-            alert(result.message);
-            await refreshAllData();
-          }
-        } catch (e) {
-          alert("ส่งข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง");
-        } finally {
-          document.getElementById("loader").style.display = "none";
-        }
+          if (result.status === "error") alert(result.message);
+          else { document.getElementById("storyInput").value = ""; fileInput.value = ""; alert(result.message); await refreshAllData(); }
+        } catch (e) { alert("เกิดข้อผิดพลาด"); } finally { document.getElementById("loader").style.display = "none"; }
       };
       reader.readAsDataURL(file);
     }
-    
-// 🎬 ฟังก์ชันเล่นแอนิเมชันผู้กล้าพุ่งฟันบอส + ตัวเลขดาเมจเด้ง
-    function playAttackAnimation(damageAmount = 50) {
-      const hero = document.getElementById("heroSprite");
-      const boss = document.getElementById("bossSprite");
-      const stage = document.getElementById("stageField");
 
-      if (!hero || !boss || !stage) return;
-
-      // 1. สั่งให้ผู้กล้าพุ่งไปข้างหน้า
-      hero.classList.remove("hero-attack");
-      void hero.offsetWidth; // รีเซ็ตแอนิเมชัน
-      hero.classList.add("hero-attack");
-
-      // 2. จังหวะที่ชนบอส (หน่วงเวลา 200ms)
-      setTimeout(() => {
-        boss.classList.remove("boss-hit");
-        void boss.offsetWidth;
-        boss.classList.add("boss-hit");
-
-        // สร้างตัวเลขดาเมจลอยขึ้นมา
-        const dmgEl = document.createElement("div");
-        dmgEl.className = "floating-dmg";
-        dmgEl.innerText = `💥 -${damageAmount} HP!`;
-        stage.appendChild(dmgEl);
-
-        // ลบตัวเลขทิ้งเมื่อลอยจบ
-        setTimeout(() => dmgEl.remove(), 1000);
-      }, 200);
-    }
-    
-    // =========================================================================
-    // 🎁 8. เติมโค้ดกิจกรรม & 🤝 ตลาดเทรดของ
-    // =========================================================================
     async function submitEventCode() {
       const code = document.getElementById("eventCodeInput").value.trim();
-      if (!code) return alert("กรุณาระบุรหัสโค้ด");
-
+      if (!code) return;
       document.getElementById("loader").style.display = "flex";
       try {
-        const res = await fetch(GAS_API_URL, {
-          method: "POST",
-          body: JSON.stringify({ action: "redeemCode", userId: currentUserId, displayName: currentDisplayName, code: code })
-        });
+        const res = await fetch(GAS_API_URL, { method: "POST", body: JSON.stringify({ action: "redeemCode", userId: currentUserId, displayName: currentDisplayName, code: code }) });
         const data = await res.json();
         await refreshAllData();
-        if (data.status === "success") {
-          document.getElementById("eventCodeInput").value = "";
-          alert(`🎉 เติมสำเร็จ! ได้รับไอเทม [${data.itemName}] เข้ากระเป๋าแล้ว`);
-        } else {
-          alert(data.message);
-        }
-      } catch (e) {
-        alert("เกิดข้อผิดพลาดในการเชื่อมต่อ");
-      } finally {
-        document.getElementById("loader").style.display = "none";
-      }
+        if (data.status === "success") { document.getElementById("eventCodeInput").value = ""; alert(`🎉 เติมสำเร็จ! ได้รับ [${data.itemName}]`); }
+        else alert(data.message);
+      } catch (e) { alert("เกิดข้อผิดพลาด"); } finally { document.getElementById("loader").style.display = "none"; }
     }
 
     function populateTradeSelect() {
-      const sel = document.getElementById("tradeMyItemSelect");
-      sel.innerHTML = "";
-      if (myInventory.length === 0) {
-        sel.innerHTML = "<option value=''>ไม่มีไอเทมสำหรับแลก</option>";
-        return;
-      }
-      myInventory.forEach(i => {
-        const o = document.createElement("option");
-        o.value = i.id;
-        o.innerText = `${i.name} (มี x${i.qty})`;
-        sel.appendChild(o);
-      });
+      const sel = document.getElementById("tradeMyItemSelect"); sel.innerHTML = "";
+      if (!myInventory.length) { sel.innerHTML = "<option value=''>ไม่มีไอเทม</option>"; return; }
+      myInventory.forEach(i => { const o = document.createElement("option"); o.value = i.id; o.innerText = `${i.name} (มี x${i.qty})`; sel.appendChild(o); });
     }
 
     async function createTradeRoom() {
       const itemId = document.getElementById("tradeMyItemSelect").value;
-      if (!itemId) return alert("กรุณาเลือกของในกระเป๋า");
-      document.getElementById("loader").style.display = "flex";
+      if (!itemId) return; document.getElementById("loader").style.display = "flex";
       try {
-        const res = await fetch(GAS_API_URL, {
-          method: "POST",
-          body: JSON.stringify({ action: "createTrade", userId: currentUserId, itemId: itemId })
-        });
-        const data = await res.json();
-        await refreshAllData();
+        const res = await fetch(GAS_API_URL, { method: "POST", body: JSON.stringify({ action: "createTrade", userId: currentUserId, itemId: itemId }) });
+        const data = await res.json(); await refreshAllData();
         alert(`เปิดห้องแลกเปลี่ยนสำเร็จ! รหัส ${data.tradeCode}`);
-      } catch (e) {
-        alert("ไม่สามารถเปิดห้องแลกเปลี่ยนได้");
-      } finally {
-        document.getElementById("loader").style.display = "none";
-      }
+      } catch (e) { alert("เกิดข้อผิดพลาด"); } finally { document.getElementById("loader").style.display = "none"; }
     }
 
     async function acceptTradePrompt(tCode, itemName) {
-      if (myInventory.length === 0) return alert("ไม่มีของสำหรับแลก");
-      const yourItemName = prompt(`เพื่อนเสนอ: ${itemName}\nพิมพ์ "ชื่อไอเทมของคุณ" ที่ต้องการมอบตอบแทน:`);
+      if (!myInventory.length) return alert("ไม่มีของสำหรับแลก");
+      const yourItemName = prompt(`เพื่อนเสนอ: ${itemName}\nพิมพ์ชื่อไอเทมของคุณที่ต้องการมอบ:`);
       if (!yourItemName) return;
       const myItem = myInventory.find(i => i.name.includes(yourItemName.trim()));
       if (!myItem) return alert("ไม่พบไอเทมนี้ในกระเป๋า");
-
       document.getElementById("loader").style.display = "flex";
       try {
-        const res = await fetch(GAS_API_URL, {
-          method: "POST",
-          body: JSON.stringify({ action: "acceptTrade", userId: currentUserId, tradeCode: tCode, counterItemId: myItem.id })
-        });
-        const data = await res.json();
-        await refreshAllData();
-        if (data.status === "success") alert(`แลกเปลี่ยนสำเร็จ! ได้รับ [${data.receivedItem}] เข้ากระเป๋าแล้ว`);
-        else alert(data.message);
-      } catch (e) {
-        alert("เกิดข้อผิดพลาดในการแลกเปลี่ยน");
-      } finally {
-        document.getElementById("loader").style.display = "none";
-      }
+        const res = await fetch(GAS_API_URL, { method: "POST", body: JSON.stringify({ action: "acceptTrade", userId: currentUserId, tradeCode: tCode, counterItemId: myItem.id }) });
+        const data = await res.json(); await refreshAllData();
+        if (data.status === "success") alert(`แลกเปลี่ยนสำเร็จ! ได้รับ [${data.receivedItem}]`); else alert(data.message);
+      } catch (e) { alert("เกิดข้อผิดพลาด"); } finally { document.getElementById("loader").style.display = "none"; }
     }
 
     window.onload = initApp;
