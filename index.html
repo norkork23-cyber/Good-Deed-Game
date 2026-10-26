@@ -576,9 +576,10 @@
       };
       reader.readAsDataURL(file);
     }
-// ==================== ระบบ BINGO ภารกิจ ====================
-    // รายการภารกิจ 9 อย่าง (คุณครูเปลี่ยนข้อความได้ที่นี่ทุกเดือน)
-    const bingoTasks = [
+    
+    // ==================== ระบบ BINGO สุ่มอัตโนมัติแบบอนันต์ ====================
+    // 1. คลังภารกิจทั้งหมด (ใส่ไว้เยอะๆ ได้เลย ระบบจะสุ่มมาทีละ 9 ช่อง)
+    const bingoTaskPool = [
       { id: "b1", icon: "🧹", name: "กวาดบ้าน/ถูบ้าน" },
       { id: "b2", icon: "🍽️", name: "ล้างจานให้ครอบครัว" },
       { id: "b3", icon: "🛏️", name: "จัดที่นอนตอนเช้า" },
@@ -587,25 +588,48 @@
       { id: "b6", icon: "📚", name: "อ่านหนังสือ 15 นาที" },
       { id: "b7", icon: "👟", name: "จัดรองเท้าให้เป็นระเบียบ" },
       { id: "b8", icon: "💧", name: "ดื่มน้ำเปล่าหมดแก้ว" },
-      { id: "b9", icon: "❤️", name: "ช่วยเหลืองานคุณครู" }
+      { id: "b9", icon: "❤️", name: "ช่วยเหลืองานคุณครู" },
+      { id: "b10", icon: "👚", name: "พับผ้า/เก็บเสื้อผ้า" },
+      { id: "b11", icon: "🔌", name: "ปิดไฟ/ถอดปลั๊กเมื่อไม่ใช้" },
+      { id: "b12", icon: "🐶", name: "ให้อาหารสัตว์เลี้ยง" },
+      { id: "b13", icon: "👨‍👩‍👧", name: "นวดให้คุณพ่อคุณแม่" },
+      { id: "b14", icon: "📝", name: "ทำการบ้านเสร็จตรงเวลา" },
+      { id: "b15", icon: "🚴‍♂️", name: "ออกกำลังกาย 15 นาที" }
     ];
 
     let currentSelectedBingo = null;
 
-    // สร้างกระดานบิงโกตอนเปิดเว็บ
+    // 2. ฟังก์ชันสร้างกระดานและสุ่มภารกิจ
     function renderBingoBoard() {
       const board = document.getElementById("bingoBoard");
       if(!board) return;
       board.innerHTML = "";
       
-      // ดึงข้อมูลว่าเด็กเคยส่งช่องไหนไปแล้วบ้าง (เก็บในเครื่องชั่วคราวเพื่อแสดง UI สีเขียว)
-      const completedTasks = JSON.parse(localStorage.getItem(`bingo_${currentUserId}`)) || [];
+      // ตรวจสอบว่ามีกระดานปัจจุบันอยู่หรือไม่ ถ้าไม่มีให้สุ่มใหม่
+      let currentBoard = JSON.parse(localStorage.getItem(`bingoBoard_${currentUserId}`));
+      
+      if (!currentBoard || currentBoard.length !== 9) {
+        // สุ่มสลับตำแหน่งภารกิจ (Shuffle) แล้วดึงมาแค่ 9 อัน
+        let shuffled = bingoTaskPool.sort(() => 0.5 - Math.random());
+        currentBoard = shuffled.slice(0, 9);
+        // บันทึกกระดานนี้ไว้ในเครื่องเด็ก จะได้ไม่เปลี่ยนไปมาเวลาเด็กรีเฟรชเว็บ
+        localStorage.setItem(`bingoBoard_${currentUserId}`, JSON.stringify(currentBoard));
+      }
 
-      bingoTasks.forEach(task => {
+      // ดึงข้อมูลว่าเด็กทำภารกิจไหนเสร็จไปแล้วบ้าง
+      const completedTasks = JSON.parse(localStorage.getItem(`bingoCompleted_${currentUserId}`)) || [];
+
+      // วาดกระดาน 9 ช่อง
+      currentBoard.forEach(task => {
         const isCompleted = completedTasks.includes(task.id);
         const cell = document.createElement("div");
         cell.className = `bingo-cell ${isCompleted ? 'completed' : ''}`;
-        cell.onclick = () => openBingoModal(task);
+        
+        // ถ้าทำเสร็จแล้ว ไม่ต้องให้กดอัปโหลดซ้ำ
+        if (!isCompleted) {
+          cell.onclick = () => openBingoModal(task);
+        }
+        
         cell.innerHTML = `
           <div class="icon">${task.icon}</div>
           <div class="text">${task.name}</div>
@@ -614,7 +638,6 @@
       });
     }
 
-    // เปิดหน้าต่างอัปโหลด
     function openBingoModal(task) {
       currentSelectedBingo = task;
       document.getElementById("bingoTaskIcon").innerText = task.icon;
@@ -628,7 +651,7 @@
       currentSelectedBingo = null;
     }
 
-    // ส่งงานเข้า Google Sheets
+    // 3. ฟังก์ชันส่งรูปและตรวจเช็กว่าทำ "ครบ 9 ช่อง" หรือยัง
     async function submitBingoDeed() {
       const fileInput = document.getElementById("bingoImageInput");
       if (fileInput.files.length === 0) return alert("กรุณาเลือกรูปภาพหลักฐานก่อนนะคะ");
@@ -649,7 +672,7 @@
               displayName: currentDisplayName,
               school: currentSchool,
               isQuest: false, 
-              story: `[บิงโก] ${currentSelectedBingo.name}`, // ระบบจะบันทึกชื่อภารกิจลงตารางช่อง "เรื่องราว" ให้อัตโนมัติ
+              story: `[บิงโก] ${currentSelectedBingo.name}`, 
               imageBase64: reader.result
             })
           });
@@ -658,16 +681,28 @@
           if (result.status === "error") {
             alert(result.message);
           } else {
-            // บันทึกสถานะว่าทำช่องนี้ผ่านแล้ว ลงในมือถือเด็ก
-            let completed = JSON.parse(localStorage.getItem(`bingo_${currentUserId}`)) || [];
+            // บันทึกสถานะว่าทำช่องนี้ผ่านแล้ว
+            let completed = JSON.parse(localStorage.getItem(`bingoCompleted_${currentUserId}`)) || [];
             if(!completed.includes(currentSelectedBingo.id)) {
               completed.push(currentSelectedBingo.id);
-              localStorage.setItem(`bingo_${currentUserId}`, JSON.stringify(completed));
+              localStorage.setItem(`bingoCompleted_${currentUserId}`, JSON.stringify(completed));
             }
             
             closeBingoModal();
-            alert("📸 ส่งหลักฐานบิงโกเรียบร้อยแล้ว รอคุณครูให้คะแนนนะคะ!");
-            renderBingoBoard(); // รีเฟรชให้ช่องเปลี่ยนเป็นสีเขียว
+
+            // 🔥 เช็กว่าทำครบ 9 ช่อง (เคลียร์กระดาน) หรือยัง?
+            if (completed.length >= 9) {
+              alert("🎉 BINGO! ยินดีด้วยค่ะ น้องทำภารกิจครบ 9 ช่องแล้ว!\n\nรอคุณครูตรวจผล แล้วรับกระดานใหม่ไปลุยต่อได้เลย! ✨");
+              
+              // ล้างข้อมูลกระดานเดิมทิ้ง เพื่อให้ฟังก์ชัน renderBingoBoard สุ่มตารางใหม่
+              localStorage.removeItem(`bingoCompleted_${currentUserId}`);
+              localStorage.removeItem(`bingoBoard_${currentUserId}`);
+            } else {
+              alert("📸 ส่งหลักฐานเรียบร้อยแล้ว! มาสะสมให้ครบ 9 ช่องกันเถอะ!");
+            }
+            
+            // รีเฟรชกระดาน
+            renderBingoBoard(); 
             await refreshAllData();
           }
         } catch (e) {
