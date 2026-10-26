@@ -115,6 +115,51 @@
     /* Modal */
     .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(6px); z-index: 100; padding: 20px 14px; }
     .modal-box { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px; max-height: 90vh; overflow-y: auto; position: relative; top: 50%; transform: translateY(-50%); }
+    /* ================= 🎯 BINGO BOARD ================= */
+    .bingo-header { text-align: center; margin-bottom: 12px; }
+    .bingo-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    .bingo-cell {
+      background: #1E293B;
+      border: 2px dashed #8B5CF6;
+      border-radius: 14px;
+      padding: 10px 4px;
+      text-align: center;
+      cursor: pointer;
+      aspect-ratio: 1 / 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      transition: all 0.2s;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+    }
+    .bingo-cell:active { transform: scale(0.95); }
+    .bingo-cell .icon { font-size: 28px; margin-bottom: 6px; }
+    .bingo-cell .text { font-size: 11px; color: #E2E8F0; line-height: 1.3; font-weight: 500; }
+    
+    /* สถานะเมื่อส่งแล้ว (เก็บสถานะชั่วคราวในเครื่อง) */
+    .bingo-cell.completed {
+      background: #064E3B;
+      border: 2px solid #10B981;
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+    }
+    .bingo-cell.completed .icon { filter: grayscale(0%); }
+    .bingo-cell.completed::after {
+      content: '✔ ส่งแล้ว';
+      position: absolute;
+      background: #10B981;
+      color: #fff;
+      font-size: 9px;
+      padding: 2px 6px;
+      border-radius: 10px;
+      margin-top: 40px;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -195,35 +240,46 @@
     </div>
   </div>
 
-  <!-- ==================== TAB 2: QUEST & SUBMISSION ==================== -->
+ <!-- ==================== TAB 2: BINGO SUBMISSION ==================== -->
   <div id="questTab" class="tab-content">
-    <div class="card" style="border-color: #8B5CF6;">
-      <div class="title" style="color: #C084FC;">🎯 เควสประจำสัปดาห์ (+50 แต้ม)</div>
-      <p style="font-size: 13px; line-height: 1.4; margin-bottom: 8px;" id="questTitle">กำลังโหลดเควส...</p>
-      <div id="questStatusText" style="font-size: 12px; color: var(--green); font-weight: 600;"></div>
-    </div>
-
-    <div class="card">
-      <div class="title">📸 ส่งหลักฐานทำความดี</div>
-      <p style="font-size: 11px; color: var(--dim); margin-bottom: 12px;">(จำกัดวันละ 5 ครั้ง • รอคุณครูตรวจและอนุมัติแต้ม)</p>
-
-      <label style="font-size: 12px; color: var(--dim); display:block;">โหมดการส่ง:</label>
-      <select id="submitType">
-        <option value="normal">🌟 ความดีทั่วไป</option>
-        <option value="quest">🎯 ส่งเควสประจำสัปดาห์</option>
-      </select>
-
-      <label style="font-size: 12px; color: var(--dim); display:block;">เล่าความดีที่ทำ:</label>
-      <textarea id="storyInput" rows="3" placeholder="เช่น ช่วยคุณแม่ล้างจาน กวาดห้อง..."></textarea>
-
-      <label style="font-size: 12px; color: var(--dim); display:block;">เลือกรูปภาพหลักฐาน:</label>
-      <input type="file" id="imageInput" accept="image/*">
-
-      <button type="button" class="btn-main" onclick="submitGoodDeed()">🚀 ส่งให้คุณครูตรวจสอบ</button>
+    <div class="card" style="border-color: #8B5CF6; background: linear-gradient(180deg, #1E1B4B 0%, #151D2F 100%);">
+      <div class="bingo-header">
+        <h3 style="color: #C084FC; font-size: 18px;">🎯 บิงโกความดี ประจำเดือน</h3>
+        <p style="font-size: 11px; color: #94A3B8;">แตะที่ภารกิจเพื่อส่งรูปหลักฐาน (จำกัดวันละ 5 ครั้ง)</p>
+      </div>
+      
+      <!-- กระดานบิงโก 3x3 -->
+      <div class="bingo-grid" id="bingoBoard">
+        <!-- จะใช้ JavaScript สร้างตารางอัตโนมัติ -->
+      </div>
+      
+      <div style="text-align: center; margin-top: 10px;">
+        <span style="font-size: 12px; color: #34D399; font-weight: 600;">✨ ทำครบ 9 ช่อง รับไอเทมพิเศษสิ้นเดือน! ✨</span>
+      </div>
     </div>
     <div style="height: 120px;"></div>
   </div>
 
+  <!-- Modal สำหรับอัปโหลดรูปบิงโก -->
+  <div id="bingoModal" class="modal">
+    <div class="modal-box">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <div style="font-size: 16px; font-weight: 700; color: #38BDF8;">📸 ส่งหลักฐานภารกิจ</div>
+        <button onclick="closeBingoModal()" style="background: none; border: none; color: #fff; font-size: 16px; cursor: pointer;">✕</button>
+      </div>
+      
+      <div style="text-align: center; margin-bottom: 16px; padding: 10px; background: #0F172A; border-radius: 12px;">
+        <div id="bingoTaskIcon" style="font-size: 32px; margin-bottom: 5px;">-</div>
+        <div id="bingoTaskName" style="font-size: 14px; font-weight: 600; color: #E2E8F0;">-</div>
+      </div>
+
+      <label style="font-size: 12px; color: var(--dim); display:block;">เลือกรูปภาพหลักฐาน:</label>
+      <input type="file" id="bingoImageInput" accept="image/*" style="margin-bottom: 16px;">
+
+      <button type="button" class="btn-main" onclick="submitBingoDeed()">🚀 ส่งให้คุณครูตรวจสอบ</button>
+    </div>
+  </div>
+  
   <!-- ==================== TAB 3: INVENTORY ==================== -->
   <div id="bagTab" class="tab-content">
     <div class="card">
@@ -313,7 +369,7 @@
         document.getElementById("uName").innerText = currentDisplayName;
         
         loaderText.innerText = "กำลังโหลดข้อมูล...";
-        await refreshAllData();
+        await refreshAllData(); renderBingoBoard();
         loader.style.display = "none";
       } catch (err) {
         loaderText.innerText = "เข้าสู่ระบบไม่สำเร็จ: " + err.message;
@@ -520,7 +576,109 @@
       };
       reader.readAsDataURL(file);
     }
+// ==================== ระบบ BINGO ภารกิจ ====================
+    // รายการภารกิจ 9 อย่าง (คุณครูเปลี่ยนข้อความได้ที่นี่ทุกเดือน)
+    const bingoTasks = [
+      { id: "b1", icon: "🧹", name: "กวาดบ้าน/ถูบ้าน" },
+      { id: "b2", icon: "🍽️", name: "ล้างจานให้ครอบครัว" },
+      { id: "b3", icon: "🛏️", name: "จัดที่นอนตอนเช้า" },
+      { id: "b4", icon: "🌱", name: "รดน้ำต้นไม้" },
+      { id: "b5", icon: "🗑️", name: "แยกขยะ/ทิ้งขยะ" },
+      { id: "b6", icon: "📚", name: "อ่านหนังสือ 15 นาที" },
+      { id: "b7", icon: "👟", name: "จัดรองเท้าให้เป็นระเบียบ" },
+      { id: "b8", icon: "💧", name: "ดื่มน้ำเปล่าหมดแก้ว" },
+      { id: "b9", icon: "❤️", name: "ช่วยเหลืองานคุณครู" }
+    ];
 
+    let currentSelectedBingo = null;
+
+    // สร้างกระดานบิงโกตอนเปิดเว็บ
+    function renderBingoBoard() {
+      const board = document.getElementById("bingoBoard");
+      if(!board) return;
+      board.innerHTML = "";
+      
+      // ดึงข้อมูลว่าเด็กเคยส่งช่องไหนไปแล้วบ้าง (เก็บในเครื่องชั่วคราวเพื่อแสดง UI สีเขียว)
+      const completedTasks = JSON.parse(localStorage.getItem(`bingo_${currentUserId}`)) || [];
+
+      bingoTasks.forEach(task => {
+        const isCompleted = completedTasks.includes(task.id);
+        const cell = document.createElement("div");
+        cell.className = `bingo-cell ${isCompleted ? 'completed' : ''}`;
+        cell.onclick = () => openBingoModal(task);
+        cell.innerHTML = `
+          <div class="icon">${task.icon}</div>
+          <div class="text">${task.name}</div>
+        `;
+        board.appendChild(cell);
+      });
+    }
+
+    // เปิดหน้าต่างอัปโหลด
+    function openBingoModal(task) {
+      currentSelectedBingo = task;
+      document.getElementById("bingoTaskIcon").innerText = task.icon;
+      document.getElementById("bingoTaskName").innerText = task.name;
+      document.getElementById("bingoImageInput").value = "";
+      document.getElementById("bingoModal").style.display = "block";
+    }
+
+    function closeBingoModal() {
+      document.getElementById("bingoModal").style.display = "none";
+      currentSelectedBingo = null;
+    }
+
+    // ส่งงานเข้า Google Sheets
+    async function submitBingoDeed() {
+      const fileInput = document.getElementById("bingoImageInput");
+      if (fileInput.files.length === 0) return alert("กรุณาเลือกรูปภาพหลักฐานก่อนนะคะ");
+
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+      
+      document.getElementById("loader").style.display = "flex";
+      document.getElementById("loaderText").innerText = "กำลังส่งรูปบิงโก...";
+
+      reader.onload = async function() {
+        try {
+          const res = await fetch(GAS_API_URL, {
+            method: "POST",
+            body: JSON.stringify({
+              action: "submitGoodDeed",
+              userId: currentUserId,
+              displayName: currentDisplayName,
+              school: currentSchool,
+              isQuest: false, 
+              story: `[บิงโก] ${currentSelectedBingo.name}`, // ระบบจะบันทึกชื่อภารกิจลงตารางช่อง "เรื่องราว" ให้อัตโนมัติ
+              imageBase64: reader.result
+            })
+          });
+          const result = await res.json();
+          
+          if (result.status === "error") {
+            alert(result.message);
+          } else {
+            // บันทึกสถานะว่าทำช่องนี้ผ่านแล้ว ลงในมือถือเด็ก
+            let completed = JSON.parse(localStorage.getItem(`bingo_${currentUserId}`)) || [];
+            if(!completed.includes(currentSelectedBingo.id)) {
+              completed.push(currentSelectedBingo.id);
+              localStorage.setItem(`bingo_${currentUserId}`, JSON.stringify(completed));
+            }
+            
+            closeBingoModal();
+            alert("📸 ส่งหลักฐานบิงโกเรียบร้อยแล้ว รอคุณครูให้คะแนนนะคะ!");
+            renderBingoBoard(); // รีเฟรชให้ช่องเปลี่ยนเป็นสีเขียว
+            await refreshAllData();
+          }
+        } catch (e) {
+          alert("ส่งข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง");
+        } finally {
+          document.getElementById("loader").style.display = "none";
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+    
     async function submitEventCode() {
       const code = document.getElementById("eventCodeInput").value.trim();
       if (!code) return;
